@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 3
+names: ['left-top', 'right-top', 'soccer-goal']
+
+roboflow:
+  workspace: goalfintuning
+  project: goal-finetune
+  version: 6
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/goalfintuning/goal-finetune/dataset/6
