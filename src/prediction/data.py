@@ -11,10 +11,10 @@ class CodinateData:
         return len(self.input_list)
     
     def input_dim(self):
-        return len(self.input_list[0])
+        return len(self.input_list[0][0][0])
 
     def output_dim(self):
-        return len(self.output_list[0])
+        return len(self.output_list[0][0][0])
 
     def get_inputs(self):
         return self.input_list
