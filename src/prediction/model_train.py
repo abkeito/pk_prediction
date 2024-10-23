@@ -2,18 +2,27 @@
 import sys
 import torch
 from torch import optim
+from torch import cuda
 
-import data
-from prediction_model import CodinatePredictionModel
+# import data
+import random_data
+from model import CodinatePredictionModel
 
 EPOCH_NUM = 10 # 適宜変えてね
 
-dataset = data.CodinateData() # 引数要確認
+# dataset = data.CodinateData() # 引数要確認
+dataset = random_data.RandomCodinateData()
 
 input_size = dataset.input_dim()
 output_size = dataset.output_dim()
 
-model = CodinatePredictionModel(input_size, output_size)
+# デバイスの設定
+if torch.cuda.is_available():
+    device = torch.device('cuda')
+else:
+    device = torch.device('cpu')
+
+model = CodinatePredictionModel(input_size, output_size).to(device)
 
 optimizer = optim.Adam(model.parameters())
 
@@ -21,18 +30,15 @@ optimizer = optim.Adam(model.parameters())
 for epoch in range(EPOCH_NUM):
     print("{0} / {1} epoch start.".format(epoch + 1, EPOCH_NUM))
 
-    sum_loss = 0.0
-    for i, (input, output) in enumurate(zip(dataset.get_inputs(), dataset.get_outpus())):
+    model.reset_state()
+    optimizer.zero_grad()
 
-        model.reset_state()
-        optimizer.zero_grad()
-
-        input = torch.tensor(input, dtype=torch.float).unsqueeze(-1)
-        output = torch.tensor(output, dtype=torch.float).unsqueeze(-1)
-        loss = model(input, output)
-        loss.backward()
-        optimizer.step()
-        sum_loss += float(loss.data.to('cpu'))
+    inputs = torch.tensor(dataset.get_inputs(), dtype = torch.float32)
+    outputs = torch.tensor(dataset.get_outputs(), dtype = torch.float32)
+    loss = model(inputs, outputs)
+    loss.backward()
+    optimizer.step()
+    sum_loss = float(loss.data.to('cpu'))
 
     print("mean loss = {0}.".format(sum_loss / dataset.input_size()))
 
