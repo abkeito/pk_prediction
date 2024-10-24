@@ -3,3 +3,4 @@
 *.avi
 *.json
 *.mp4
+__pycache__/
