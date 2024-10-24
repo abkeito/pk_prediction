@@ -8,7 +8,7 @@ class RandomCodinateData:
         self.output_list = self.pack(30)
 
     def pack(self, seq_size, batch_size=50, node_size=17):
-        # 初期化。入出力はbatch_size個の配列からなり、各batchはそれぞれ各ノードの座標を格納したseq_size個の配列からなる。
+        # 初期化。入出力はseq_size個の配列からなり、各batchはそれぞれ各ノードの座標を格納したbatch_size個の配列からなる。
         # 座標の時系列情報は[node1のx座標, node1のy座標, node2のx座標, node2のy座標, ... , node17のx座標, node17のy座標]という形式
         empty_list = []
         for _ in range(seq_size):
@@ -23,8 +23,8 @@ class RandomCodinateData:
 
         return empty_list
 
-    def input_size(self):
-        return len(self.input_list)
+    def batch_size(self):
+        return len(self.input_list[0])
     
     def input_dim(self):
         return len(self.input_list[0][0]) # 17 nodes * 2 (x, y) = 34
