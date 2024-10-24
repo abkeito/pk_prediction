@@ -5,9 +5,9 @@ import torch.nn as nn
 from torch import cuda
 
 # 座標の時系列データを入力として, 座標の時系列データを出力とする
-class CodinatePredictionModel(nn.Module):
+class CoodinatePredictionModel(nn.Module):
     def __init__(self, input_size, output_size, hidden_size=100):
-        super(CodinatePredictionModel, self).__init__()
+        super(CoodinatePredictionModel, self).__init__()
         self.W_lstm_enc = nn.LSTMCell(input_size, hidden_size)
         self.W_lstm_dec = nn.LSTMCell(output_size, hidden_size)
         self.W_hr_y = nn.Linear(hidden_size, output_size)

@@ -1,11 +1,22 @@
 # 座標データのクラス
-class CodinateData:
+class CoodinateData:
     def __init__(self, filename):
-        with open(file_name, "r") as f:
+        with open(filename, "r") as json_open:
+            json_load = json.load(json_open)
             self.input_list = []
             self.output_list = []
+            self.input_seqsize = 60
+            self.output_seqsize = 30
+            self.batch_size = 10
+            self.node_size = 17
 
-            # それぞれの配列に座標情報をパック。ファイルデータから読み込むかYOLO11n-poseを用いて直接データを作るかは未定
+            for i in range(self.input_seqsize):
+                batch_list = []
+                for j in range(self.batch_size):
+                    coodinate_list = []
+
+
+            
 
     def batch_size(self):
         return len(self.input_list[0])

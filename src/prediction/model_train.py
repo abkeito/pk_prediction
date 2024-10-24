@@ -7,7 +7,7 @@ from torch import cuda
 
 # import data
 import random_data
-from model import CodinatePredictionModel
+from model import CoodinatePredictionModel
 
 EPOCH_NUM = 10 # 適宜変えてね
 
@@ -57,8 +57,8 @@ def cross_validate(dataset, k=5):
         sum_loss += val_loss.item()
     print("mean loss = {0}".format(sum_loss/k))
 
-# dataset = data.CodinateData() # 引数要確認
-dataset = random_data.RandomCodinateData()
+# dataset = data.CoodinateData() # 引数要確認
+dataset = random_data.RandomCoodinateData()
 
 input_size = dataset.input_dim()
 output_size = dataset.output_dim()
@@ -69,7 +69,7 @@ if torch.cuda.is_available():
 else:
     device = torch.device('cpu')
 
-model = CodinatePredictionModel(input_size, output_size).to(device)
+model = CoodinatePredictionModel(input_size, output_size).to(device)
 
 optimizer = optim.Adam(model.parameters())
 

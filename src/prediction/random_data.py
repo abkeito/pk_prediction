@@ -2,7 +2,7 @@
 
 import random
 
-class RandomCodinateData:
+class RandomCoodinateData:
     def __init__(self):
         self.input_list = self.pack(40)
         self.output_list = self.pack(30)
