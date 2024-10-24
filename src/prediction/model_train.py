@@ -5,8 +5,8 @@ import random
 from torch import optim
 from torch import cuda
 
-# import data
-import random_data
+import data
+# import random_data
 from model import CoodinatePredictionModel
 
 EPOCH_NUM = 10 # 適宜変えてね
@@ -57,8 +57,8 @@ def cross_validate(dataset, k=5):
         sum_loss += val_loss.item()
     print("mean loss = {0}".format(sum_loss/k))
 
-# dataset = data.CoodinateData() # 引数要確認
-dataset = random_data.RandomCoodinateData()
+dataset = data.CoodinateData("data/pose.json")
+# dataset = random_data.RandomCoodinateData()
 
 input_size = dataset.input_dim()
 output_size = dataset.output_dim()
