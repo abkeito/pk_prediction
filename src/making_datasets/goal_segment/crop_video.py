@@ -31,8 +31,11 @@ class GoalCropper:
 
         # MoviePyを使って動画をクロップ
         with VideoFileClip(self.input_video) as video:
+            # フレーム数を取得
+            total_frames = int(video.fps * video.duration)
+            print(f"Total frames in the original video: {total_frames}")
             # 指定範囲でクロップ
-            cropped_video = video.fx(vfx.crop, x1=x_min, y1=y_min, x2=x_max, y2=y_max)
+            cropped_video = video.fx(vfx.crop, x1=x_min*video.w, y1=y_min*video.h, x2=x_max*video.w, y2=y_max*video.h)
             
             # 出力ファイルの名前を設定
             output_filename = os.path.join(self.output_folder, "cropped_output.mp4")

@@ -36,7 +36,7 @@ for frame_id, result in enumerate(results):
     posts = []
     for i, box in enumerate(result.boxes):
         # Get the bounding box coordinates (x1, y1, x2, y2)
-        x1, y1, x2, y2 = box.xyxy[0].tolist()  # Convert to list if needed
+        x1, y1, x2, y2 = box.xyxyn[0].tolist()  # Convert to list if needed
         confidence = box.conf[0].item()  # Confidence score
         class_id = box.cls[0].item()  # Class ID
         class_name = classes[class_id]
@@ -65,7 +65,7 @@ for frame_id, result in enumerate(results):
 
     # Add the detected object to the list
     goals.append(goal)
-
+print(f"frame number = {frame_id}")
 goal_info["crop_coordinates"] = {
         "left-up": [np.mean([goal["coordinates"]["left-up"][0] for goal in goals]), np.mean([goal["coordinates"]["left-up"][1] for goal in goals])],
         "right-up": [np.mean([goal["coordinates"]["right-up"][0] for goal in goals]), np.mean([goal["coordinates"]["right-up"][1] for goal in goals])],
