@@ -1,0 +1,5 @@
+GOAL_SEGMENT_MODEL = "/home/u01170/AI_practice/pk_prediction/src/making_datasets/goal_segment/best.pt"
+INPUT_VIDEO_FOLDER = "/home/u01170/AI_practice/pk_prediction/src/making_datasets/goal_segment/video/"
+GOAL_OUTPUT_FOLDER = "/home/u01170/AI_practice/pk_prediction/src/making_datasets/goal_segment/goal_json/"
+CROPPED_VIDEO_FOLDER = "/home/u01170/AI_practice/pk_prediction/src/making_datasets/goal_segment/cropped_video/"
+POSE_OUTPUT_FOLDER = "/home/u01170/AI_practice/pk_prediction/src/making_datasets/goal_segment/pose_json/"

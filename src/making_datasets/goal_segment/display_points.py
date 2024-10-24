@@ -6,7 +6,7 @@ import json
 # フレームサイズの設定
 frame_width = 640
 frame_height = 480
-input_file = f"/home/u01170/AI_practice/pk_prediction/src/making_datasets/goal_segment/data/pose.json"
+input_file = f"/home/u01170/AI_practice/pk_prediction/src/making_datasets/goal_segment/pose_json/cropped_distorted.mp4_pose.json"
 output_file = '/home/u01170/AI_practice/pk_prediction/src/making_datasets/goal_segment/video/display_points.mp4'
 
 with open(input_file, 'r', encoding='utf-8') as file:
