@@ -1,1 +1,5 @@
 .venv/
+*.pt
+*.avi
+*.json
+*.mp4

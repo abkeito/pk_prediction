@@ -3,7 +3,7 @@ import json
 import numpy as np
 
 # JSONファイルの読み込み
-with open("goal_segment.json", "r") as json_file:
+with open("goal_segment_standard.json", "r") as json_file:
     detected_objects = json.load(json_file)
 
 # 動画ファイルの読み込み
@@ -13,7 +13,7 @@ frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
 # 出力用動画ファイルの設定
-output_file = "output_video_with_goals1.mp4"
+output_file = "output_video_with_goals_standard.mp4"
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out = cv2.VideoWriter(output_file, fourcc, fps, (frame_width, frame_height))
 
