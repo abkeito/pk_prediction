@@ -12,8 +12,8 @@ class CoodinatePredictionModel(nn.Module):
         self.W_lstm_dec = nn.LSTMCell(output_size, hidden_size)
         self.W_hr_y = nn.Linear(hidden_size, output_size)
         
-        # 出力系列長をself.output_sizeとする
-        self.output_size = 30
+        # 出力系列長をself.output_seq_sizeとする
+        self.output_seq_size = 30
 
         # 回帰問題なので最小二乗誤差を損失関数とする
         self.loss_fn = torch.nn.MSELoss()
@@ -69,8 +69,9 @@ class CoodinatePredictionModel(nn.Module):
         else:
             # 予測座標を出力
             result = []
-            for _ in range(self.output_size):
+            for _ in range(self.output_seq_size):
                 y = self.decode(dec_input)
                 result.append(y)
                 dec_input = y
+            result = torch.stack(result)
             return result
