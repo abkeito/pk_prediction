@@ -6,6 +6,7 @@ from torch import optim
 from torch import cuda
 
 import data
+from data import standardize
 # import random_data
 from model import CoodinatePredictionModel
 
@@ -57,6 +58,7 @@ def cross_validate(dataset, k=5):
         sum_loss += val_loss.item()
     print("mean loss = {0}".format(sum_loss/k))
 
+# データセットの選択
 dataset = data.CoodinateData("data/pose.json")
 # dataset = random_data.RandomCoodinateData()
 
@@ -69,11 +71,13 @@ if torch.cuda.is_available():
 else:
     device = torch.device('cpu')
 
+#学習モデルの選択
 model = CoodinatePredictionModel(input_size, output_size).to(device)
 
+#最適化方法
 optimizer = optim.Adam(model.parameters())
 
-
+# 学習
 for epoch in range(EPOCH_NUM):
     print("{0} / {1} epoch start.".format(epoch + 1, EPOCH_NUM))
 
@@ -82,7 +86,12 @@ for epoch in range(EPOCH_NUM):
 
     inputs = torch.tensor(dataset.get_inputs(), dtype = torch.float32)
     outputs = torch.tensor(dataset.get_outputs(), dtype = torch.float32)
-    loss = model(inputs, outputs)
+
+    #標準化
+    standardized_inputs = standardize(inputs)
+    standardized_outputs = standardize(outputs, standardized_inputs[1], standardized_inputs[2])
+
+    loss = model(standardized_inputs[0], standardized_outputs[0])
     loss.backward()
     optimizer.step()
 

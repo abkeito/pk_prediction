@@ -1,6 +1,7 @@
 # 座標データのクラス
 
 import json
+import torch
 
 class CoodinateData:
     def __init__(self, filename):
@@ -10,7 +11,7 @@ class CoodinateData:
             self.output_list = []
             self.input_seqsize = 60
             self.output_seqsize = 30
-            self.batch_size = 10
+            self.batch_size = 1
             self.node_size = 17
 
             self.parts = ['nose', 'left_eye', 'right_eye', 'left_ear', 'right_ear', 'left_shoulder', 'right_shoulder', 'left_elbow', 'right_elbow', 'left_wrist', 'right_wrist', 'left_hip', 'right_hip', 'left_knee', 'right_knee', 'left_ankle', 'right_ankle']
@@ -50,3 +51,24 @@ class CoodinateData:
     def get_outputs(self):
         return self.output_list
 
+# 標準化
+def standardize(tensor, mean=None, std=None):
+    if mean is None:
+        mean = torch.mean(tensor, dim=0)
+    if std is None:
+        std = torch.std(tensor, dim=0, unbiased=False)
+    # 0除算対策
+    eps = 10**-9
+    eps_tensor = torch.full_like(std, 10**-9)
+    if (std < eps).all():
+        std = eps_tensor
+    
+    standardized_tensor = (tensor - mean) / std
+
+    # 標準化後のテンソルと、平均、標準偏差を返す
+    return standardized_tensor, mean, std
+
+# 逆標準化
+def destandardize(tensor, mean, std):
+    print("tensor: {0}\nmean: {1}\nstd: {2}".format(tensor.device, mean.device, std.device))
+    return tensor * std + mean
