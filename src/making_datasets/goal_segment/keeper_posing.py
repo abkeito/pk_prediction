@@ -3,21 +3,26 @@ import numpy as np
 from ultralytics import YOLO
 import os
 import torch
-from base import CROPPED_VIDEO_FOLDER, POSE_OUTPUT_FOLDER
+from base import CROPPED_VIDEO_FOLDER, INPUT_SPLIT_FOLDER, POSE_OUTPUT_FOLDER
 
-def keeper_posing(input_video_name: str, goal_output_file_path: str):
+def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame: int, input_frame: int, output_frame:int):
     print(torch.version.cuda)
     print(torch.__version__)
     device = 'gpu' if torch.cuda.is_available() else 'cpu'
     print(device)
 
     # Predict with the model
-    input_path = os.path.join(CROPPED_VIDEO_FOLDER, input_video_name)
+    input_path = os.path.join(CROPPED_VIDEO_FOLDER, "cropped_" + input_video_name)
+    input_text_path = os.path.join(INPUT_SPLIT_FOLDER, input_video_name.split(".")[0]+".txt")
     outputfile = os.path.join(POSE_OUTPUT_FOLDER, f"{input_video_name}_pose.json")
     goal_json_path = goal_output_file_path
 
     with open(goal_json_path, 'r', encoding='utf-8') as file:
         data = json.load(file)
+    
+    with open(input_text_path, "r") as file:
+        kick_frame_id = int(file.read())
+
     goal_data = data["goal"]
     crop_coordinates = data["crop_coordinates"]
     # 座標を辞書から抽出
@@ -78,8 +83,15 @@ def keeper_posing(input_video_name: str, goal_output_file_path: str):
                                         pose_coordinates - subtract_value)
                 pose_coordinates_transformed = np.dot(transformation_matrix, pose_coordinates.T)
                 keeper_pose = dict(zip(person_keypoints, pose_coordinates_transformed.T.tolist()))
+            if frame_id >= kick_frame_id - (split_frame + input_frame) and frame_id < kick_frame_id - split_frame:
+                data_type = "input"
+            elif frame_id >= kick_frame_id - split_frame and frame_id < kick_frame_id - split_frame + output_frame:
+                data_type = "output"
+            else:
+                data_type = None
             keeper = {
                 "frame_id" : frame_id,
+                "data_type" : data_type,
                 "keeper-pose" : keeper_pose
             }
             keeper_info.append(keeper)
