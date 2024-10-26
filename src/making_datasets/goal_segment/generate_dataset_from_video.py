@@ -2,17 +2,21 @@ import os
 from goal_segment import goal_segment
 from crop_video import crop_video_with_coordinates
 from keeper_posing import keeper_posing
-from base import GOAL_SEGMENT_MODEL, INPUT_VIDEO_FOLDER, GOAL_OUTPUT_FOLDER, SPLIT_FRAME, INPUT_FRAME, OUTPUT_FRAME
+from base import GOAL_SEGMENT_MODEL, INPUT_VIDEO_FOLDER, GOAL_OUTPUT_FOLDER, SPLIT_FRAME, INPUT_FRAME, OUTPUT_FRAME, CROPPED_VIDEO_FOLDER
 
 def generate_dataset_from_video():
+    total = 0
     print("データセットを作成します。")
     # フォルダ内の全ファイルを取得
-    video_files = os.listdir(INPUT_VIDEO_FOLDER)
+    video_files = sorted(os.listdir(INPUT_VIDEO_FOLDER))
     for input_video_name in video_files:
         goal_output_file_path = goal_segment(input_video_name)
         crop_video_with_coordinates(input_video_name, goal_output_file_path)
-        keeper_posing(input_video_name, goal_output_file_path, SPLIT_FRAME, INPUT_FRAME, OUTPUT_FRAME)
-
+    for input_video_name in video_files:
+        if os.path.exists(os.path.join(CROPPED_VIDEO_FOLDER, "cropped_" + input_video_name)):
+            total += 1
+            keeper_posing(input_video_name, os.path.join(GOAL_OUTPUT_FOLDER, input_video_name + "_goal.json"), SPLIT_FRAME, INPUT_FRAME, OUTPUT_FRAME)
+    print(f"全てで{total}件のデータセットが生成されました。")
 if __name__ == "__main__": 
     generate_dataset_from_video()
 
