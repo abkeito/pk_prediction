@@ -32,24 +32,28 @@ def goal_segment(input_video_name: str):
 
     goals = []
 
+    goal_frames = 0
     x1, y1, x2, y2, x3, y3, x4, y4 = 0,0,0,0,0,0,0,0
     # Extract the bounding boxes, masks, and segmentations
     for frame_id, result in enumerate(results):
+        confidence = 0
         # Check if masks are available in the result
         posts = []
         for i, box in enumerate(result.boxes):
             # Get the bounding box coordinates (x1, y1, x2, y2)
             x1, y1, x2, y2 = box.xyxyn[0].tolist()  # Convert to list if needed
-            confidence = box.conf[0].item()  # Confidence score
+            confidence = box.conf[0].item()   # Confidence score
             class_id = box.cls[0].item()  # Class ID
             class_name = classes[class_id]
             posts.append([(x1+x2)/2, y1, (x1+x2)/2, y2, confidence]) # postの上と下とconfidenceを入れる
-        
+           
+
         if len(posts) == 2 and posts[0][4] > 0.5 and posts[1][4] > 0.5:
             if posts[0][0] < posts[1][0]:
                 left_post, right_post = posts[0], posts[1]
             else:
                 left_post, right_post = posts[1], posts[0]
+            goal_frames += 1
             x1, y1, x2, y2, x3, y3, x4, y4 = left_post[0], left_post[1], right_post[0], right_post[1], left_post[2], left_post[3], right_post[2], right_post[3]
 
 
@@ -71,16 +75,19 @@ def goal_segment(input_video_name: str):
     print(f"frame number = {frame_id}")
 
     # 座標を辞書から抽出
-    goal_top_left = [np.mean([goal["coordinates"]["left-up"][0] for goal in goals]) , np.mean([goal["coordinates"]["left-up"][1] for goal in goals])]
-    goal_top_right = [np.mean([goal["coordinates"]["right-up"][0] for goal in goals]), np.mean([goal["coordinates"]["right-up"][1] for goal in goals])]
-    goal_bottom_left = [np.mean([goal["coordinates"]["left-down"][0] for goal in goals]), np.mean([goal["coordinates"]["left-down"][1] for goal in goals])]
-    goal_bottom_right = [np.mean([goal["coordinates"]["right-down"][0] for goal in goals]), np.mean([goal["coordinates"]["right-down"][1] for goal in goals])]
+    goal_top_left = [np.sum([goal["coordinates"]["left-up"][0] for goal in goals]) / goal_frames, np.sum([goal["coordinates"]["left-up"][1] for goal in goals]) / goal_frames]
+    goal_top_right = [np.sum([goal["coordinates"]["right-up"][0] for goal in goals])/ goal_frames, np.sum([goal["coordinates"]["right-up"][1] for goal in goals])/ goal_frames]
+    goal_bottom_left = [np.sum([goal["coordinates"]["left-down"][0] for goal in goals])/ goal_frames, np.sum([goal["coordinates"]["left-down"][1] for goal in goals])/ goal_frames]
+    goal_bottom_right = [np.sum([goal["coordinates"]["right-down"][0] for goal in goals])/ goal_frames, np.sum([goal["coordinates"]["right-down"][1] for goal in goals])/ goal_frames]
 
     # 4隅の座標からクロップ範囲を計算
-    x_min = (min(goal_top_left[0], goal_bottom_left[0]) - 0.05) if (min(goal_top_left[0], goal_bottom_left[0]) - 0.05) > 0 else 0
-    x_max = (max(goal_top_right[0], goal_bottom_right[0]) + 0.05) if (max(goal_top_right[0], goal_bottom_right[0]) + 0.05) < 1 else 1
-    y_min = (min(goal_top_left[1], goal_top_right[1]) - 0.05) if (min(goal_top_left[1], goal_top_right[1]) - 0.05) > 0 else 0
-    y_max = (max(goal_bottom_left[1], goal_bottom_right[1]) + 0.05) if (max(goal_bottom_left[1], goal_bottom_right[1]) + 0.05) < 1 else 1
+    x_range = max(goal_top_right[0], goal_bottom_right[0]) - min(goal_top_left[0], goal_bottom_left[0])
+    y_range = max(goal_bottom_left[1], goal_bottom_right[1]) - min(goal_top_left[1], goal_top_right[1])
+
+    x_min = (min(goal_top_left[0], goal_bottom_left[0]) - x_range*0.05) if (min(goal_top_left[0], goal_bottom_left[0]) - x_range*0.05) > 0 else 0
+    x_max = (max(goal_top_right[0], goal_bottom_right[0]) + x_range*0.05) if (max(goal_top_right[0], goal_bottom_right[0]) + x_range*0.05) < 1 else 1
+    y_min = (min(goal_top_left[1], goal_top_right[1]) - y_range*0.05) if (min(goal_top_left[1], goal_top_right[1]) - y_range*0.05) > 0 else 0
+    y_max = (max(goal_bottom_left[1], goal_bottom_right[1]) + y_range*0.05) if (max(goal_bottom_left[1], goal_bottom_right[1]) + y_range*0.05) < 1 else 1
 
     goal_info["crop_coordinates"] = {
         "x_min": x_min,

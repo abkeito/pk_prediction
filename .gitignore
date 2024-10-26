@@ -4,4 +4,6 @@
 *.json
 *.mp4
 *.pyc
+*.jpg
+*.txt
 __pycache__/

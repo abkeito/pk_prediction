@@ -38,8 +38,13 @@ class GoalCropper:
             output_file_path = os.path.join(self.output_folder, output_filename)
             
             # クロップした動画を保存
-            cropped_video.write_videofile(output_file_path, codec='libx264', audio_codec='aac')
-
+            cropped_video.write_videofile(
+                output_file_path,
+                codec='libx264',
+                audio_codec='aac',
+                bitrate="5000k",          # ビットレートを指定
+                preset="slow",            # 高画質用のエンコードプリセット
+            )
         
         print(f"Cropped video saved to: {output_filename}")
 
