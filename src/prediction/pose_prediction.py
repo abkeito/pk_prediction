@@ -35,3 +35,4 @@ def pose_prediction(inputs, outputs, filename):
         json.dump(predicted_coodinates, f, indent=4)
     
     print(f"Predicted action of the keeper saved to {filename}")
+    
