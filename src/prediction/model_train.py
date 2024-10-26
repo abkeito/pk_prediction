@@ -99,3 +99,5 @@ for epoch in range(EPOCH_NUM):
 
     model_file = "trained_model/prediction_" + str(epoch + 1) + ".model"
     torch.save(model.state_dict(), model_file)
+
+    # srun -p p -t 10:00 --gres=gpu:1 --pty poetry run python src/prediction/model_train.py 
