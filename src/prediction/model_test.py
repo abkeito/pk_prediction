@@ -5,6 +5,8 @@ import torch
 import data
 from data import standardize, destandardize
 from model import CoodinatePredictionModel
+from pose_prediction import pose_prediction
+
 EPOCH_NUM = 10
 
 # データセットの選択
@@ -34,3 +36,4 @@ outputs = model(standardized_inputs[0])
 outputs = destandardize(outputs, standardized_inputs[1].to(device), standardized_inputs[2].to(device))
 
 # 出力をファイルに保存
+pose_prediction(outputs, "data/predicted_pose.json")

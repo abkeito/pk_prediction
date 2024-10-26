@@ -70,5 +70,4 @@ def standardize(tensor, mean=None, std=None):
 
 # 逆標準化
 def destandardize(tensor, mean, std):
-    print("tensor: {0}\nmean: {1}\nstd: {2}".format(tensor.device, mean.device, std.device))
     return tensor * std + mean
