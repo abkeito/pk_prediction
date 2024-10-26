@@ -59,7 +59,7 @@ def cross_validate(dataset, k=5):
     print("mean loss = {0}".format(sum_loss/k))
 
 # データセットの選択
-dataset = data.CoodinateData("data/pose.json")
+dataset = data.CoodinateData("src/prediction/data/2.mp4_pose.json")
 # dataset = random_data.RandomCoodinateData()
 
 input_size = dataset.input_dim()
@@ -97,7 +97,7 @@ for epoch in range(EPOCH_NUM):
 
     cross_validate(dataset, k=5)
 
-    model_file = "trained_model/prediction_" + str(epoch + 1) + ".model"
+    model_file = "src/prediction/trained_model/prediction_" + str(epoch + 1) + ".model"
     torch.save(model.state_dict(), model_file)
 
     # srun -p p -t 10:00 --gres=gpu:1 --pty poetry run python src/prediction/model_train.py 

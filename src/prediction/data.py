@@ -16,25 +16,45 @@ class CoodinateData:
 
             self.parts = ['nose', 'left_eye', 'right_eye', 'left_ear', 'right_ear', 'left_shoulder', 'right_shoulder', 'left_elbow', 'right_elbow', 'left_wrist', 'right_wrist', 'left_hip', 'right_hip', 'left_knee', 'right_knee', 'left_ankle', 'right_ankle']
 
-            for i in range(self.input_seqsize):
-                batch_list = []
-                for j in range(self.batch_size):
-                    coodinate_list = []
-                    for k in range(self.node_size):
-                        coodinate_list.extend(json_load[i]["keeper-pose"][self.parts[k]])
-                    batch_list.append(coodinate_list)
-                self.input_list.append(batch_list)
+            # for i in range(self.input_seqsize):
+            #     batch_list = []
+            #     for j in range(self.batch_size):
+            #         coodinate_list = []
+            #         for k in range(self.node_size):
+            #             coodinate_list.extend(json_load[i]["keeper-pose"][self.parts[k]])
+            #         batch_list.append(coodinate_list)
+            #     self.input_list.append(batch_list)
 
-            for i in range(self.output_seqsize):
-                if i + self.input_seqsize >= len(json_load):
-                    break
+            # for i in range(self.output_seqsize):
+            #     if i + self.input_seqsize >= len(json_load):
+            #         break
+            #     batch_list = []
+            #     for j in range(self.batch_size):
+            #         coodinate_list = []
+            #         for k in range(self.node_size):
+            #             coodinate_list.extend(json_load[i + self.input_seqsize]["keeper-pose"][self.parts[k]])
+            #         batch_list.append(coodinate_list)
+            #     self.output_list.append(batch_list)
+
+
+            for frame in json_load:
+                data_type = frame["data_type"]
+                if data_type is None:
+                    continue
+                keeper_pose = frame["keeper-pose"]
+                if keeper_pose is None:
+                    continue
                 batch_list = []
-                for j in range(self.batch_size):
+                for i in range(self.batch_size):
                     coodinate_list = []
-                    for k in range(self.node_size):
-                        coodinate_list.extend(json_load[i + self.input_seqsize]["keeper-pose"][self.parts[k]])
+                    for j in range(self.node_size):
+                        coodinate_list.extend(keeper_pose[self.parts[j]])
                     batch_list.append(coodinate_list)
-                self.output_list.append(batch_list)
+                if data_type == "input":
+                    self.input_list.append(batch_list)
+                elif data_type == "output":
+                    self.output_list.append(batch_list)
+
 
     def batch_size(self):
         return self.batch_size

@@ -10,7 +10,7 @@ from pose_prediction import pose_prediction
 EPOCH_NUM = 10
 
 # データセットの選択
-dataset = data.CoodinateData("src/prediction/data/pose.json")
+dataset = data.CoodinateData("src/prediction/data/2.mp4_pose.json")
 
 input_size = dataset.input_dim()
 output_size = dataset.output_dim()
