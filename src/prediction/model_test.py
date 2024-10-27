@@ -4,13 +4,13 @@ import torch
 
 import data
 from data import standardize, destandardize
-from model import CoodinatePredictionModel
+from model import CoordinatePredictionModel
 from pose_prediction import pose_prediction
 
 EPOCH_NUM = 10
 
 # データセットの選択
-dataset = data.CoodinateData("src/prediction/data/pose.json")
+dataset = data.CoordinateData("src/prediction/data/pose.json")
 
 input_size = dataset.input_dim()
 output_size = dataset.output_dim()
@@ -22,7 +22,7 @@ else:
     device = torch.device('cpu')
 
 # モデルの選択
-model = CoodinatePredictionModel(input_size, output_size).to(device)
+model = CoordinatePredictionModel(input_size, output_size).to(device)
 
 model.load_state_dict(torch.load("src/prediction/trained_model/prediction_{0}.model".format(EPOCH_NUM)))
 

@@ -4,13 +4,14 @@ import torch
 import random
 from torch import optim
 from torch import cuda
+import os 
 
 import data
 from data import standardize
 # import random_data
-from model import CoodinatePredictionModel
+from model import CoordinatePredictionModel
 
-EPOCH_NUM = 10 # 適宜変えてね
+EPOCH_NUM = 20 # 適宜変えてね
 
 # 交差検証
 def cross_validate(dataset, k=5):
@@ -59,8 +60,9 @@ def cross_validate(dataset, k=5):
     print("mean loss = {0}".format(sum_loss/k))
 
 # データセットの選択
-dataset = data.CoodinateData("data/pose.json")
-# dataset = random_data.RandomCoodinateData()
+filepaths = [os.path.join(("data"), filepath) for filepath in os.listdir("data")]
+dataset = data.CoordinateData(filepaths)
+# dataset = random_data.RandomCoordinateData()
 
 input_size = dataset.input_dim()
 output_size = dataset.output_dim()
@@ -72,33 +74,39 @@ else:
     device = torch.device('cpu')
 
 #学習モデルの選択
-model = CoodinatePredictionModel(input_size, output_size).to(device)
+model = CoordinatePredictionModel(input_size, output_size).to(device)
 
 #最適化方法
-optimizer = optim.Adam(model.parameters())
+optimizer = optim.Adam(model.parameters(), lr=0.000001)
+
+# データセット準備
+inputs = torch.tensor(dataset.get_inputs(), dtype = torch.float32)
+outputs = torch.tensor(dataset.get_outputs(), dtype = torch.float32)
+
+#標準化
+standardized_inputs = standardize(inputs)
+standardized_outputs = standardize(outputs, standardized_inputs[1], standardized_inputs[2])
 
 # 学習
 for epoch in range(EPOCH_NUM):
     print("{0} / {1} epoch start.".format(epoch + 1, EPOCH_NUM))
 
-    model.reset_state()
-    optimizer.zero_grad()
+    sum_loss = 0
+    for i, (input, output) in enumerate(zip(standardized_inputs[0], standardized_outputs[0])):
+        model.reset_state()
+        optimizer.zero_grad()
 
-    inputs = torch.tensor(dataset.get_inputs(), dtype = torch.float32)
-    outputs = torch.tensor(dataset.get_outputs(), dtype = torch.float32)
+        loss = model(input, output)
+        loss.backward()
+        optimizer.step()
+        sum_loss += float(loss.data.to('cpu'))
 
-    #標準化
-    standardized_inputs = standardize(inputs)
-    standardized_outputs = standardize(outputs, standardized_inputs[1], standardized_inputs[2])
+    print("mean loss = {0}.".format(sum_loss / input_size))
+    # cross_validate(dataset, k=5)
 
-    loss = model(standardized_inputs[0], standardized_outputs[0])
-    loss.backward()
-    optimizer.step()
-
-    cross_validate(dataset, k=5)
-
-    model_file = "trained_model/prediction_" + str(epoch + 1) + ".model"
+    # エポック毎に書き出す
+    model_file = "src/prediction/trained_model/prediction_" + str(epoch + 1) + ".model"
     torch.save(model.state_dict(), model_file)
 
-    # srun -p p -t 10:00 --gres=gpu:1 --pty poetry run python src/prediction/model_train.py 
+# srun -p p -t 10:00 --gres=gpu:1 --pty poetry run python src/prediction/model_train.py 
     

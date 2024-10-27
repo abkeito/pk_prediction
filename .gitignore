@@ -1,9 +1,10 @@
 .venv/
-*.pt
 *.avi
 *.json
 *.mp4
 *.pyc
 *.jpg
 *.txt
+*.model
+*.pt
 __pycache__/

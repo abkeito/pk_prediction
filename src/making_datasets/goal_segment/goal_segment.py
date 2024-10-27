@@ -41,14 +41,14 @@ def goal_segment(input_video_name: str):
         posts = []
         for i, box in enumerate(result.boxes):
             # Get the bounding box coordinates (x1, y1, x2, y2)
-            x1, y1, x2, y2 = box.xyxyn[0].tolist()  # Convert to list if needed
+            x1_0, y1_0, x2_0, y2_0 = box.xyxyn[0].tolist()  # Convert to list if needed
             confidence = box.conf[0].item()   # Confidence score
             class_id = box.cls[0].item()  # Class ID
             class_name = classes[class_id]
-            posts.append([(x1+x2)/2, y1, (x1+x2)/2, y2, confidence]) # postの上と下とconfidenceを入れる
+            posts.append([(x1_0+x2_0)/2, y1_0, (x1_0+x2_0)/2, y2_0, confidence]) # postの上と下とconfidenceを入れる
            
 
-        if len(posts) == 2 and posts[0][4] > 0.5 and posts[1][4] > 0.5:
+        if len(posts) == 2 and posts[0][4] > 0.4 and posts[1][4] > 0.4:
             if posts[0][0] < posts[1][0]:
                 left_post, right_post = posts[0], posts[1]
             else:

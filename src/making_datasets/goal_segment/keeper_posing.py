@@ -3,7 +3,7 @@ import numpy as np
 from ultralytics import YOLO
 import os
 import torch
-from base import CROPPED_VIDEO_FOLDER, INPUT_SPLIT_FOLDER, POSE_OUTPUT_FOLDER
+from base import CROPPED_VIDEO_FOLDER, INPUT_SPLIT_FOLDER, POSE_OUTPUT_FOLDER, GOAL_OUTPUT_FOLDER
 
 # これをはみ出たらだめ
 x_min, x_max = 0-1, 7.32+1
@@ -76,6 +76,7 @@ def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame
     results = model(input_path, save=True, stream=True)
 
     keeper_info = []
+    keeper_pose = None
     for frame_id, result in enumerate(results):
         # goal の情報
         if frame_id < len(goal_data):
@@ -99,7 +100,6 @@ def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame
             transformation_matrix = np.array([[(7.32 / xb), 0], [-(2.44*yb/ya/xb), 2.44/ya]])
 
             # 姿勢の座標を変換して登録していく
-            keeper_pose = None
             pose_coordinates = np.array(result.keypoints.xyn.tolist()[0])
             if pose_coordinates.shape != (0,):
                 subtract_value = np.array([goal_lu[0], goal_lu[1]])
@@ -107,8 +107,9 @@ def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame
                                         pose_coordinates, 
                                         pose_coordinates - subtract_value)
                 pose_coordinates_transformed = np.dot(transformation_matrix, pose_coordinates.T)
-                if are_coordinates_within_bounds(pose_coordinates):
+                if are_coordinates_within_bounds(pose_coordinates_transformed):
                     keeper_pose = dict(zip(person_keypoints, pose_coordinates_transformed.T.tolist()))
+                
             if frame_id >= kick_frame_id - (split_frame + input_frame) and frame_id < kick_frame_id - split_frame:
                 data_type = "input"
             elif frame_id >= kick_frame_id - split_frame and frame_id < kick_frame_id - split_frame + output_frame:
@@ -128,4 +129,5 @@ def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame
 
     print(f"Detected objects with masks saved to {outputfile}")
 
+keeper_posing("4.mp4", os.path.join(GOAL_OUTPUT_FOLDER, "4.mp4_goal.json"), 5, 15, 15)
 # srun -p p -t 10:00 --gres=gpu:1 --pty poetry run python src/making_datasets/goal_segment/keeper_posing.py
