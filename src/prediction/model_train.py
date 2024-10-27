@@ -94,11 +94,14 @@ for epoch in range(EPOCH_NUM):
     loss = model(standardized_inputs[0], standardized_outputs[0])
     loss.backward()
     optimizer.step()
+    sum_loss = float(loss.data.to('cpu'))
 
-    cross_validate(dataset, k=5)
-
+    print("loss = {0}.".format(sum_loss))
+    
     model_file = "src/prediction/trained_model/prediction_" + str(epoch + 1) + ".model"
     torch.save(model.state_dict(), model_file)
+
+cross_validate(dataset, k=5)
 
     # srun -p p -t 10:00 --gres=gpu:1 --pty poetry run python src/prediction/model_train.py 
     

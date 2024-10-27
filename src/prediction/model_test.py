@@ -24,7 +24,7 @@ else:
 # モデルの選択
 model = CoodinatePredictionModel(input_size, output_size).to(device)
 
-model.load_state_dict(torch.load("src/prediction/trained_model/prediction_{0}.model".format(EPOCH_NUM)))
+model.load_state_dict(torch.load("src/prediction/trained_model/prediction_{0}.model".format(80)))
 
 inputs = torch.tensor(dataset.get_inputs(), dtype=torch.float32)
 # 標準化
