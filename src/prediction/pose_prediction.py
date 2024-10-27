@@ -1,13 +1,13 @@
 import json
 import torch
 
-def pose_prediction(inputs, outputs, filename):
+def pose_prediction(inputs, outputs):
 
     
     keypoints = ['nose', 'left_eye', 'right_eye', 'left_ear', 'right_ear', 'left_shoulder', 'right_shoulder', 'left_elbow', 'right_elbow', 'left_wrist', 'right_wrist', 'left_hip', 'right_hip', 'left_knee', 'right_knee', 'left_ankle', 'right_ankle']
     keypoints_size = len(keypoints)
 
-    for input, output in zip(inputs, outputs):
+    for i, (input, output) in enumerate(zip(inputs, outputs)):
         frame_id = 0
         predicted_coodinates = []
         for frame in input:
@@ -36,8 +36,8 @@ def pose_prediction(inputs, outputs, filename):
             predicted_coodinates.append(frame)
             frame_id += 1
 
-        with open(filename, "w") as f:
+        with open("src/prediction/data/predict/{0}_pose_predicted.json".format(i + 101), "w") as f:
             json.dump(predicted_coodinates, f, indent=4)
     
-        print(f"Predicted action of the keeper saved to {filename}")
+        print(f"Predicted action of the keeper saved to src/prediction/data/predict/{i + 101}_pose_predicted.json")
     

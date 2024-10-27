@@ -9,18 +9,15 @@ import data
 # import random_data
 from model import CoodinatePredictionModel
 
-EPOCH_NUM = 100 # 適宜変えてね
+EPOCH_NUM = 1000 # 適宜変えてね
 
 # 交差検証
 def cross_validate(dataset, model, k=5):
     print("cross validation start.")
 
+    # データのパディング
     all_inputs = model.padding(dataset.get_inputs()).transpose(0, 1)
     all_outputs = model.padding(dataset.get_outputs()).transpose(0, 1)
-
-    # テンソル化してbatchsizeとseqsizeの次元を入れ替え
-    # all_inputs = torch.tensor(dataset.get_inputs(), dtype=torch.float32).transpose(0, 1)
-    # all_outputs = torch.tensor(dataset.get_outputs(), dtype=torch.float32).transpose(0, 1)
 
     #データのインデックスをシャッフル
     indices = list(range(len(all_inputs)))
@@ -63,7 +60,7 @@ def cross_validate(dataset, model, k=5):
     print("mean loss = {0}".format(sum_loss/k))
 
 # データセットの選択
-dataset = data.CoodinateData("src/prediction/data/2.mp4_pose.json")
+dataset = data.CoodinateData()
 # dataset = random_data.RandomCoodinateData()
 
 input_size = dataset.input_dim()
@@ -98,8 +95,9 @@ for epoch in range(EPOCH_NUM):
 
     print("loss = {0}.".format(sum_loss))
     
-    model_file = "src/prediction/trained_model/prediction_" + str(epoch + 1) + ".model"
-    torch.save(model.state_dict(), model_file)
+    if (epoch + 1) % 10 == 0:
+        model_file = "src/prediction/trained_model/prediction_" + str(epoch + 1) + ".model"
+        torch.save(model.state_dict(), model_file)
 
 cross_validate(dataset, model, k=5)
 
