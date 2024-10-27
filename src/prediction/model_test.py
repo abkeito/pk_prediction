@@ -7,7 +7,7 @@ from data import standardize, destandardize
 from model import CoodinatePredictionModel
 from pose_prediction import pose_prediction
 
-EPOCH_NUM = 10
+EPOCH_NUM = 30
 
 # データセットの選択
 dataset = data.CoodinateData("src/prediction/data/2.mp4_pose.json")
@@ -24,7 +24,7 @@ else:
 # モデルの選択
 model = CoodinatePredictionModel(input_size, output_size).to(device)
 
-model.load_state_dict(torch.load("src/prediction/trained_model/prediction_{0}.model".format(80)))
+model.load_state_dict(torch.load("src/prediction/trained_model/prediction_{0}.model".format(EPOCH_NUM)))
 
 inputs = torch.tensor(dataset.get_inputs(), dtype=torch.float32)
 # 標準化

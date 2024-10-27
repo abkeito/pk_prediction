@@ -10,10 +10,11 @@ from data import standardize
 # import random_data
 from model import CoodinatePredictionModel
 
-EPOCH_NUM = 10 # 適宜変えてね
+EPOCH_NUM = 100 # 適宜変えてね
 
 # 交差検証
 def cross_validate(dataset, k=5):
+    print("cross validation start.")
     # テンソル化してbatchsizeとseqsizeの次元を入れ替え
     all_inputs = torch.tensor(dataset.get_inputs(), dtype=torch.float32).transpose(0, 1)
     all_outputs = torch.tensor(dataset.get_outputs(), dtype=torch.float32).transpose(0, 1)
