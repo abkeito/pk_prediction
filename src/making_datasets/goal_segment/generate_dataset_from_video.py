@@ -8,7 +8,7 @@ def generate_dataset_from_video():
     total = 0
     print("データセットを作成します。")
     # フォルダ内の全ファイルを取得
-    video_files = sorted(os.listdir(INPUT_VIDEO_FOLDER))
+    video_files = sorted(os.listdir(INPUT_VIDEO_FOLDER))[5:30]
     #for input_video_name in video_files:
     #    goal_output_file_path = goal_segment(input_video_name)
     #    crop_video_with_coordinates(input_video_name, goal_output_file_path)

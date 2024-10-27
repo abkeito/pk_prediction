@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 import json
+import os
 
 def get_color(data_type):
     if data_type == "input":
@@ -14,8 +15,10 @@ def get_color(data_type):
 # フレームサイズの設定
 frame_width = 640
 frame_height = 480
-input_file = f"/home/u01170/AI_practice/pk_prediction/src/making_datasets/goal_segment/dataset/9.mp4_pose.json"
+input_file = f"/home/u01170/AI_practice/pk_prediction/src/making_datasets/goal_segment/dataset/101.mp4_pose.json"
+# input_file = "/home/u01170/AI_practice/pk_prediction/data/predict_pose.json"
 output_file = '/home/u01170/AI_practice/pk_prediction/src/making_datasets/goal_segment/video/display_points.mp4'
+#inputfiles = os.listdir("/home/u01170/AI_practice/pk_prediction/src/making_datasets/goal_segment/dataset/dataset_example")
 
 with open(input_file, 'r', encoding='utf-8') as file:
     frames_data = json.load(file)

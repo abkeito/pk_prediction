@@ -1,16 +1,17 @@
 # test
 import sys
 import torch
+import os 
 
 import data
 from data import standardize, destandardize
 from model import CoordinatePredictionModel
 from pose_prediction import pose_prediction
 
-EPOCH_NUM = 10
+EPOCH_NUM = 1000
 
 # データセットの選択
-dataset = data.CoordinateData("src/prediction/data/pose.json")
+dataset = data.CoordinateData([os.path.join("data", "6.mp4_pose.json")])
 
 input_size = dataset.input_dim()
 output_size = dataset.output_dim()
@@ -30,12 +31,12 @@ inputs = torch.tensor(dataset.get_inputs(), dtype=torch.float32)
 # 標準化
 standardized_inputs = standardize(inputs)
 
-outputs = model(standardized_inputs[0])
+outputs = model(standardized_inputs[0][0])
 
 #逆標準化
 outputs = destandardize(outputs, standardized_inputs[1].to(device), standardized_inputs[2].to(device))
 
 # 出力をファイルに保存
-pose_prediction(inputs, outputs, "src/prediction/data/predicted_pose.json")
+pose_prediction(inputs[0], outputs, os.path.join("data", "predict_pose.json"))
 
 # srun -p p -t 10:00 --gres=gpu:1 --pty poetry run python src/prediction/model_test.py 

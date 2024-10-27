@@ -9,7 +9,7 @@ class CoordinateData:
         self.output_list = []
         self.input_seqsize = 15
         self.output_seqsize = 15
-        self.batch_size = 1
+        self.batch_size = 5
         self.node_size = 17
         self.parts = ['nose', 'left_eye', 'right_eye', 'left_ear', 'right_ear', 'left_shoulder', 'right_shoulder', 'left_elbow', 'right_elbow', 'left_wrist', 'right_wrist', 'left_hip', 'right_hip', 'left_knee', 'right_knee', 'left_ankle', 'right_ankle']
 
@@ -23,23 +23,29 @@ class CoordinateData:
             except FileNotFoundError as e:
                 print(f"File not found: {filename}")
 
-        for i in range(self.batch_size):
+        for i in range(min(self.batch_size, len(json_load))):
             batch_list = []
             for j in range(len(json_load[i])):
                 Coordinate_list = []
                 if json_load[i][j]["data_type"] == "input":
                     for k in range(self.node_size):
-                        Coordinate_list.extend(json_load[i][j]["keeper-pose"][self.parts[k]])
+                        if json_load[i][j]["keeper-pose"] == None:
+                            Coordinate_list.extend([0,0])
+                        else:
+                            Coordinate_list.extend(json_load[i][j]["keeper-pose"][self.parts[k]])
                     batch_list.append(Coordinate_list)
             self.input_list.append(batch_list)
 
-        for i in range(self.batch_size):
+        for i in range(min(self.batch_size, len(json_load))):
             batch_list = []
             for j in range(len(json_load[i])):
                 Coordinate_list = []
                 if json_load[i][j]["data_type"] == "output":
                     for k in range(self.node_size):
-                        Coordinate_list.extend(json_load[i][j]["keeper-pose"][self.parts[k]])
+                        if json_load[i][j]["keeper-pose"] == None:
+                            Coordinate_list.extend([0,0])
+                        else:
+                            Coordinate_list.extend(json_load[i][j]["keeper-pose"][self.parts[k]])
                     batch_list.append(Coordinate_list)
             self.output_list.append(batch_list)
 
@@ -61,9 +67,9 @@ class CoordinateData:
 # 標準化
 def standardize(tensor, mean=None, std=None):
     if mean is None:
-        mean = torch.mean(tensor, dim=0)
+        mean = torch.mean(tensor)
     if std is None:
-        std = torch.std(tensor, dim=0, unbiased=False)
+        std = torch.std(tensor, unbiased=False)
     # 0除算対策
     eps = 10**-9
     eps_tensor = torch.full_like(std, 10**-9)

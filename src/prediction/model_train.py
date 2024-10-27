@@ -11,7 +11,7 @@ from data import standardize
 # import random_data
 from model import CoordinatePredictionModel
 
-EPOCH_NUM = 20 # 適宜変えてね
+EPOCH_NUM = 1000 # 適宜変えてね
 
 # 交差検証
 def cross_validate(dataset, k=5):
@@ -77,7 +77,7 @@ else:
 model = CoordinatePredictionModel(input_size, output_size).to(device)
 
 #最適化方法
-optimizer = optim.Adam(model.parameters(), lr=0.000001)
+optimizer = optim.Adam(model.parameters())
 
 # データセット準備
 inputs = torch.tensor(dataset.get_inputs(), dtype = torch.float32)
@@ -105,8 +105,9 @@ for epoch in range(EPOCH_NUM):
     # cross_validate(dataset, k=5)
 
     # エポック毎に書き出す
-    model_file = "src/prediction/trained_model/prediction_" + str(epoch + 1) + ".model"
-    torch.save(model.state_dict(), model_file)
+    if (epoch+1) % 100 == 0:
+        model_file = "src/prediction/trained_model/prediction_" + str(epoch + 1) + ".model"
+        torch.save(model.state_dict(), model_file)
 
 # srun -p p -t 10:00 --gres=gpu:1 --pty poetry run python src/prediction/model_train.py 
     

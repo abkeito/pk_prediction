@@ -56,7 +56,7 @@ class CoordinatePredictionModel(nn.Module):
 
         # デコードの前にセル状態をリセット
         self.hr = (self.hr[0], torch.zeros(1, self.hidden_size).to(self.device).squeeze(0))
-        dec_input = torch.zeros(1, self.output_size).to(self.device).squeeze(0)
+        dec_input = inputs[len(inputs)-1]
 
         if outputs is not None:
             accum_loss = 0

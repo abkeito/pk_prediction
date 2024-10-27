@@ -20,11 +20,11 @@ def pose_prediction(inputs, outputs, filename):
         predicted_Coordinates.append(frame)
 
     for frame_id, output in enumerate(outputs):
-        Coordinates = torch.reshape(input, (keypoints_size, 2))
+        Coordinates = torch.reshape(output, (keypoints_size, 2))
         keeper_pose = dict(zip(keypoints, Coordinates.tolist()))
 
         frame = {
-            "frame_id" : frame_id,
+            "frame_id" : frame_id+len(inputs),
             "data_type" : "output",
             "keeper-pose" : keeper_pose
         }

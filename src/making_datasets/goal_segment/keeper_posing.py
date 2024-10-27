@@ -87,6 +87,10 @@ def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame
                     (goal_coordinates["left-down"][1] - y_min) / (y_max - y_min)]
             goal_ru = [(goal_coordinates["right-up"][0] - x_min) / (x_max - x_min),
                     (goal_coordinates["right-up"][1] - y_min) / (y_max - y_min)]
+            goal_rd = [(goal_coordinates["right-down"][0] - x_min) / (x_max - x_min),
+                    (goal_coordinates["right-down"][1] - y_min) / (y_max - y_min)]
+            goal_centroid = [np.mean(goal_lu[0] + goal_ld[0] + goal_ru[0] + goal_rd[0]), np.mean(goal_lu[1] + goal_ld[1] + goal_ru[1] + goal_rd[1])]
+
             xa, ya = goal_ld[0] - goal_lu[0], goal_ld[1] - goal_lu[1]
             xb, yb = goal_ru[0] - goal_lu[0], goal_ru[1] - goal_lu[1]
 
@@ -98,17 +102,32 @@ def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame
                 print("xb is zero")
 
             transformation_matrix = np.array([[(7.32 / xb), 0], [-(2.44*yb/ya/xb), 2.44/ya]])
+            closest_index = 0
+            # キーパーのindexをとってくる
+            if result.boxes.xywh.shape != (0,4):
+                boxes = result.boxes
+                box_areas = []
+                for box in boxes:
+                    _,_, w, h = box.xywh[0].tolist()
+                    box_areas.append(w*h)      
+                # 最小の距離を持つ点のインデックスを取得
+                closest_index = np.argmax(np.array(box_areas))
 
-            # 姿勢の座標を変換して登録していく
-            pose_coordinates = np.array(result.keypoints.xyn.tolist()[0])
+            pose_coordinates = np.array(result.keypoints.xyn.tolist()[closest_index])
             if pose_coordinates.shape != (0,):
                 subtract_value = np.array([goal_lu[0], goal_lu[1]])
                 pose_coordinates = np.where(np.all(pose_coordinates == [0, 0], axis=1, keepdims=True), 
                                         pose_coordinates, 
                                         pose_coordinates - subtract_value)
                 pose_coordinates_transformed = np.dot(transformation_matrix, pose_coordinates.T)
-                if are_coordinates_within_bounds(pose_coordinates_transformed):
+                not_points_count = 0
+                for i in range(len(pose_coordinates_transformed[0])):
+                    if [pose_coordinates_transformed[0][i], pose_coordinates_transformed[1][i]] == [0,0]:
+                        not_points_count += 1
+                        pose_coordinates_transformed[0][i], pose_coordinates_transformed[1][i] = 3.66, 1.22
+                if are_coordinates_within_bounds(pose_coordinates_transformed) and not_points_count <= 12:
                     keeper_pose = dict(zip(person_keypoints, pose_coordinates_transformed.T.tolist()))
+
                 
             if frame_id >= kick_frame_id - (split_frame + input_frame) and frame_id < kick_frame_id - split_frame:
                 data_type = "input"
@@ -129,5 +148,5 @@ def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame
 
     print(f"Detected objects with masks saved to {outputfile}")
 
-keeper_posing("4.mp4", os.path.join(GOAL_OUTPUT_FOLDER, "4.mp4_goal.json"), 5, 15, 15)
+# keeper_posing("102.mp4", os.path.join(GOAL_OUTPUT_FOLDER, "102.mp4_goal.json"), 5, 15, 15)
 # srun -p p -t 10:00 --gres=gpu:1 --pty poetry run python src/making_datasets/goal_segment/keeper_posing.py
