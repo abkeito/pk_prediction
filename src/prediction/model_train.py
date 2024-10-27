@@ -6,18 +6,21 @@ from torch import optim
 from torch import cuda
 
 import data
-from data import standardize
 # import random_data
 from model import CoodinatePredictionModel
 
 EPOCH_NUM = 100 # 適宜変えてね
 
 # 交差検証
-def cross_validate(dataset, k=5):
+def cross_validate(dataset, model, k=5):
     print("cross validation start.")
+
+    all_inputs = model.padding(dataset.get_inputs()).transpose(0, 1)
+    all_outputs = model.padding(dataset.get_outputs()).transpose(0, 1)
+
     # テンソル化してbatchsizeとseqsizeの次元を入れ替え
-    all_inputs = torch.tensor(dataset.get_inputs(), dtype=torch.float32).transpose(0, 1)
-    all_outputs = torch.tensor(dataset.get_outputs(), dtype=torch.float32).transpose(0, 1)
+    # all_inputs = torch.tensor(dataset.get_inputs(), dtype=torch.float32).transpose(0, 1)
+    # all_outputs = torch.tensor(dataset.get_outputs(), dtype=torch.float32).transpose(0, 1)
 
     #データのインデックスをシャッフル
     indices = list(range(len(all_inputs)))
@@ -85,14 +88,10 @@ for epoch in range(EPOCH_NUM):
     model.reset_state()
     optimizer.zero_grad()
 
-    inputs = torch.tensor(dataset.get_inputs(), dtype = torch.float32)
-    outputs = torch.tensor(dataset.get_outputs(), dtype = torch.float32)
+    inputs = dataset.get_inputs()
+    outputs = dataset.get_outputs()
 
-    #標準化
-    standardized_inputs = standardize(inputs)
-    standardized_outputs = standardize(outputs, standardized_inputs[1], standardized_inputs[2])
-
-    loss = model(standardized_inputs[0], standardized_outputs[0])
+    loss = model(inputs, outputs)
     loss.backward()
     optimizer.step()
     sum_loss = float(loss.data.to('cpu'))
@@ -102,7 +101,7 @@ for epoch in range(EPOCH_NUM):
     model_file = "src/prediction/trained_model/prediction_" + str(epoch + 1) + ".model"
     torch.save(model.state_dict(), model_file)
 
-cross_validate(dataset, k=5)
+cross_validate(dataset, model, k=5)
 
     # srun -p p -t 10:00 --gres=gpu:1 --pty poetry run python src/prediction/model_train.py 
     
