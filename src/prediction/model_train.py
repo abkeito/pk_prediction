@@ -11,8 +11,8 @@ import data
 from model import CoodinatePredictionModel
 from pose_prediction import pose_prediction
 
-EPOCH_NUM = 10 # 適宜変えてね
-EPOCH_NUM_VAL = 10
+EPOCH_NUM = 100 # 適宜変えてね
+EPOCH_NUM_VAL = 50
 
 train_loss_list = []
 val_loss_list = []
@@ -61,7 +61,8 @@ def cross_validate(dataset, model, k=5):
 
         # validation 
         model.reset_state()
-        val_loss = model(val_inputs, val_outputs)
+        with torch.no_grad():  # 勾配計算を無効にする
+            val_loss = model(val_inputs, val_outputs)
         sum_loss += val_loss.item()
     print("mean loss = {0}".format(sum_loss/k))
     val_loss_list.append(sum_loss/k)
@@ -113,7 +114,7 @@ for epoch in range(EPOCH_NUM):
 # 損失の描画
 ep = range(1, EPOCH_NUM + 1)
 plt.figure()
-plt.plot(ep, train_loss_list, label="train")
+# plt.plot(ep, train_loss_list, label="train")
 plt.plot(ep, val_loss_list, label="val")
 plt.xlabel("epoch")
 plt.ylabel("loss")

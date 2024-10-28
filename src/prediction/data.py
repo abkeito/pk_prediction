@@ -56,7 +56,7 @@ class CoodinateData:
                     self.output_list.append(output_frame_tensor)
 
 
-    def batch_size(self):
+    def get_batch_size(self):
         return len(self.input_list)
     
     def input_dim(self):
