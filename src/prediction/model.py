@@ -11,6 +11,7 @@ class CoodinatePredictionModel(nn.Module):
         super(CoodinatePredictionModel, self).__init__()
         self.W_lstm_enc = nn.LSTMCell(input_size, hidden_size)
         self.W_lstm_dec = nn.LSTMCell(output_size, hidden_size)
+        self.Dropout = nn.Dropout(0.2) # 過学習を防ぐため、一定割合でユニットを削除
         self.W_hr_y = nn.Linear(hidden_size, output_size)
         
         # 出力系列長をself.output_seq_sizeとする
@@ -79,10 +80,12 @@ class CoodinatePredictionModel(nn.Module):
         for frame in range(inputs.size(0)):
             input = inputs[frame]
             self.hr = self.W_lstm_enc(input, self.hr)
+            self.hr = (self.Dropout(self.hr[0]), self.hr[1]) # ドロップアウト
 
     def decode(self, dec_input):
         # 1フレームのデコードを行う。LSTMで隠れ層を更新し、W_hr_y(線形変換)で予測した座標を返す
         self.hr = self.W_lstm_dec(dec_input, self.hr)
+        self.hr = (self.Dropout(self.hr[0]), self.hr[1]) # ドロップアウト
         y = self.W_hr_y(self.hr[0])
         return y
 

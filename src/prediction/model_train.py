@@ -4,20 +4,26 @@ import torch
 import random
 from torch import optim
 from torch import cuda
+import matplotlib.pyplot as plt
 
 import data
 # import random_data
 from model import CoodinatePredictionModel
+from pose_prediction import pose_prediction
 
-EPOCH_NUM = 1000 # 適宜変えてね
+EPOCH_NUM = 10 # 適宜変えてね
+EPOCH_NUM_VAL = 10
+
+train_loss_list = []
+val_loss_list = []
 
 # 交差検証
 def cross_validate(dataset, model, k=5):
     print("cross validation start.")
 
     # データのパディング
-    all_inputs = model.padding(dataset.get_inputs()).transpose(0, 1)
-    all_outputs = model.padding(dataset.get_outputs()).transpose(0, 1)
+    all_inputs = model.padding(dataset.get_train_inputs()).transpose(0, 1)
+    all_outputs = model.padding(dataset.get_train_outputs()).transpose(0, 1)
 
     #データのインデックスをシャッフル
     indices = list(range(len(all_inputs)))
@@ -46,7 +52,7 @@ def cross_validate(dataset, model, k=5):
         val_outputs = val_outputs.transpose(0, 1)
 
         # train
-        for epoch in range(EPOCH_NUM):
+        for epoch in range(EPOCH_NUM_VAL):
             model.reset_state()
             optimizer.zero_grad()
             loss = model(train_inputs, train_outputs)
@@ -58,6 +64,7 @@ def cross_validate(dataset, model, k=5):
         val_loss = model(val_inputs, val_outputs)
         sum_loss += val_loss.item()
     print("mean loss = {0}".format(sum_loss/k))
+    val_loss_list.append(sum_loss/k)
 
 # データセットの選択
 dataset = data.CoodinateData()
@@ -76,7 +83,8 @@ else:
 model = CoodinatePredictionModel(input_size, output_size).to(device)
 
 #最適化方法
-optimizer = optim.Adam(model.parameters())
+lr = 10**-3 # 学習率
+optimizer = optim.Adam(model.parameters(), lr)
 
 # 学習
 for epoch in range(EPOCH_NUM):
@@ -85,8 +93,8 @@ for epoch in range(EPOCH_NUM):
     model.reset_state()
     optimizer.zero_grad()
 
-    inputs = dataset.get_inputs()
-    outputs = dataset.get_outputs()
+    inputs = dataset.get_train_inputs()
+    outputs = dataset.get_train_outputs()
 
     loss = model(inputs, outputs)
     loss.backward()
@@ -94,12 +102,35 @@ for epoch in range(EPOCH_NUM):
     sum_loss = float(loss.data.to('cpu'))
 
     print("loss = {0}.".format(sum_loss))
+    train_loss_list.append(sum_loss)
     
     if (epoch + 1) % 10 == 0:
         model_file = "src/prediction/trained_model/prediction_" + str(epoch + 1) + ".model"
         torch.save(model.state_dict(), model_file)
 
-cross_validate(dataset, model, k=5)
+    cross_validate(dataset, model, k=5)
 
-    # srun -p p -t 10:00 --gres=gpu:1 --pty poetry run python src/prediction/model_train.py 
+# 損失の描画
+ep = range(1, EPOCH_NUM + 1)
+plt.figure()
+plt.plot(ep, train_loss_list, label="train")
+plt.plot(ep, val_loss_list, label="val")
+plt.xlabel("epoch")
+plt.ylabel("loss")
+plt.legend()
+plt.savefig("src/prediction/data/loss.png")
+
+# test
+test = False # テストも行うときはTrueにする
+if test:
+    model.load_state_dict(torch.load("src/prediction/trained_model/prediction_{0}.model".format(EPOCH_NUM)))
+
+    inputs = dataset.get_test_inputs()
+
+    outputs = model(inputs).transpose(0, 1)
+
+    # 出力をファイルに保存
+    pose_prediction(inputs, outputs)
+    
+# srun -p p -t 10:00 --gres=gpu:1 --pty poetry run python src/prediction/model_train.py 
     
