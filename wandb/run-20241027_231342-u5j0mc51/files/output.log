@@ -1,0 +1,230 @@
+11.7
+1.13.1+cu117
+gpu
+/home/u01170/AI_practice/pk_prediction/src/prediction_abe/model_train.py:51: UserWarning: Creating a tensor from a list of numpy.ndarrays is extremely slow. Please consider converting the list to a single numpy.ndarray with numpy.array() before converting to a tensor. (Triggered internally at ../torch/csrc/utils/tensor_new.cpp:230.)
+  input, output = torch.tensor(dataset.get_inputs(), dtype = torch.float32), torch.tensor(dataset.get_outputs(), dtype = torch.float32)
+scaler info  [3.43492019 1.39199379 3.22936772 1.33275158 3.81484856 1.28846691
+ 3.17548545 1.35252206 3.90946456 1.29217876 3.55335592 1.51834961
+ 3.33628065 1.52961124 3.58830643 1.58341139 3.30527157 1.62080992
+ 3.56199803 1.66514839 3.25386206 1.69041558 3.61206625 1.78146896
+ 3.44270901 1.78796592 3.66044901 2.00503112 3.33924204 2.00699661
+ 3.7493344  2.19859682 3.33477757 2.19899413] [1.44726341 0.1419061  0.85204125 0.10698641 0.82050115 0.10097016
+ 0.77646082 0.1164506  0.67107535 0.10563037 1.60230291 0.19570306
+ 1.58238292 0.20193745 1.22911369 0.20301223 1.41624326 0.21223886
+ 1.33400783 0.22118852 1.52715801 0.22036788 1.12516717 0.19250436
+ 1.12785748 0.19414666 1.14922195 0.18798744 1.11407561 0.18713418
+ 0.89387697 0.24479484 0.82362313 0.245404  ]
+shape of the data: input, output =  torch.Size([111, 30, 34]) torch.Size([111, 30, 34])
+train:  88 88
+valid:  12 12
+test:  11 11
+1 / 100 epoch start.
+mean loss = 75.774744190953.
+2 / 100 epoch start.
+mean loss = 35.01652144031091.
+3 / 100 epoch start.
+mean loss = 34.76703670349988.
+4 / 100 epoch start.
+mean loss = 34.58343109759417.
+5 / 100 epoch start.
+mean loss = 34.45813655311411.
+6 / 100 epoch start.
+mean loss = 34.37823402881622.
+7 / 100 epoch start.
+mean loss = 34.32506466182795.
+8 / 100 epoch start.
+mean loss = 34.28738096356392.
+9 / 100 epoch start.
+mean loss = 34.260815344073556.
+10 / 100 epoch start.
+mean loss = 34.24192465977235.
+Validation Loss:  40.73964955409368
+11 / 100 epoch start.
+mean loss = 34.22711479663849.
+12 / 100 epoch start.
+mean loss = 34.21563558145003.
+13 / 100 epoch start.
+mean loss = 34.208898809823125.
+14 / 100 epoch start.
+mean loss = 34.20266028967771.
+15 / 100 epoch start.
+mean loss = 34.19965739141811.
+16 / 100 epoch start.
+mean loss = 34.19470455158841.
+17 / 100 epoch start.
+mean loss = 34.1936314729127.
+18 / 100 epoch start.
+mean loss = 34.184961844574325.
+19 / 100 epoch start.
+mean loss = 34.18120960484851.
+20 / 100 epoch start.
+mean loss = 34.16867955706336.
+Validation Loss:  40.576427002747856
+21 / 100 epoch start.
+mean loss = 34.14496026797728.
+22 / 100 epoch start.
+mean loss = 34.200839552012354.
+23 / 100 epoch start.
+mean loss = 34.2053285132755.
+24 / 100 epoch start.
+mean loss = 31.37465520880439.
+25 / 100 epoch start.
+mean loss = 26.885102152824402.
+26 / 100 epoch start.
+mean loss = 26.463557561690155.
+27 / 100 epoch start.
+mean loss = 24.850110681219533.
+28 / 100 epoch start.
+mean loss = 25.071987103332173.
+29 / 100 epoch start.
+mean loss = 24.717959256334737.
+30 / 100 epoch start.
+mean loss = 24.950277734886516.
+Validation Loss:  25.665523767471313
+31 / 100 epoch start.
+mean loss = 24.587462265383113.
+32 / 100 epoch start.
+mean loss = 24.654182534326207.
+33 / 100 epoch start.
+mean loss = 24.756642699241638.
+34 / 100 epoch start.
+mean loss = 24.996860165487636.
+35 / 100 epoch start.
+mean loss = 24.700717209415004.
+36 / 100 epoch start.
+mean loss = 24.612062815915454.
+37 / 100 epoch start.
+mean loss = 24.374412065202538.
+38 / 100 epoch start.
+mean loss = 24.437858215787195.
+39 / 100 epoch start.
+mean loss = 24.436743294650856.
+40 / 100 epoch start.
+mean loss = 24.424412581053648.
+Validation Loss:  24.39937659104665
+41 / 100 epoch start.
+mean loss = 24.426539675755933.
+42 / 100 epoch start.
+mean loss = 24.411654204130173.
+43 / 100 epoch start.
+mean loss = 24.407528831200167.
+44 / 100 epoch start.
+mean loss = 24.39772080833262.
+45 / 100 epoch start.
+mean loss = 24.38670467788523.
+46 / 100 epoch start.
+mean loss = 24.373854956843637.
+47 / 100 epoch start.
+mean loss = 24.36357627131722.
+48 / 100 epoch start.
+mean loss = 24.34989686987617.
+49 / 100 epoch start.
+mean loss = 24.33845128254457.
+50 / 100 epoch start.
+mean loss = 24.32006017186425.
+Validation Loss:  24.484728177388508
+51 / 100 epoch start.
+mean loss = 24.302347353913568.
+52 / 100 epoch start.
+mean loss = 24.275847960602153.
+53 / 100 epoch start.
+mean loss = 24.238445842807945.
+54 / 100 epoch start.
+mean loss = 24.172341761263933.
+55 / 100 epoch start.
+mean loss = 24.0579109842127.
+56 / 100 epoch start.
+mean loss = 23.830778151750565.
+57 / 100 epoch start.
+mean loss = 23.49629965695468.
+58 / 100 epoch start.
+mean loss = 23.54342460090464.
+59 / 100 epoch start.
+mean loss = 23.501639742742885.
+60 / 100 epoch start.
+mean loss = 23.42320810935714.
+Validation Loss:  23.603001693884533
+61 / 100 epoch start.
+mean loss = 23.39966531233354.
+62 / 100 epoch start.
+mean loss = 23.355308096517216.
+63 / 100 epoch start.
+mean loss = 23.33660790324211.
+64 / 100 epoch start.
+mean loss = 23.287317964163694.
+65 / 100 epoch start.
+mean loss = 23.267665968699887.
+66 / 100 epoch start.
+mean loss = 23.230628685517743.
+67 / 100 epoch start.
+mean loss = 23.179825024171308.
+68 / 100 epoch start.
+mean loss = 23.144225296649065.
+69 / 100 epoch start.
+mean loss = 23.077671571211383.
+70 / 100 epoch start.
+mean loss = 23.08187356862155.
+Validation Loss:  23.317275206247967
+71 / 100 epoch start.
+mean loss = 23.042272028597917.
+72 / 100 epoch start.
+mean loss = 23.002722704952415.
+73 / 100 epoch start.
+mean loss = 22.973489037968896.
+74 / 100 epoch start.
+mean loss = 22.936750401150096.
+75 / 100 epoch start.
+mean loss = 22.921284689144656.
+76 / 100 epoch start.
+mean loss = 22.87895369529724.
+77 / 100 epoch start.
+mean loss = 22.89853783358227.
+78 / 100 epoch start.
+mean loss = 22.83708810535344.
+79 / 100 epoch start.
+mean loss = 22.83722568371079.
+80 / 100 epoch start.
+mean loss = 22.797309786081314.
+Validation Loss:  23.11349693934123
+81 / 100 epoch start.
+mean loss = 22.77419767867435.
+82 / 100 epoch start.
+mean loss = 22.754005218094047.
+83 / 100 epoch start.
+mean loss = 22.726846077225424.
+84 / 100 epoch start.
+mean loss = 22.71583090587096.
+85 / 100 epoch start.
+mean loss = 22.698549939827487.
+86 / 100 epoch start.
+mean loss = 22.67456813563.
+87 / 100 epoch start.
+mean loss = 22.666535637595437.
+88 / 100 epoch start.
+mean loss = 22.64082703807137.
+89 / 100 epoch start.
+mean loss = 22.63280124014074.
+90 / 100 epoch start.
+mean loss = 22.6110290072181.
+Validation Loss:  22.922647039095562
+91 / 100 epoch start.
+mean loss = 22.591910150918093.
+92 / 100 epoch start.
+mean loss = 22.590017340400003.
+93 / 100 epoch start.
+mean loss = 22.55960169163617.
+94 / 100 epoch start.
+mean loss = 22.56097797101194.
+95 / 100 epoch start.
+mean loss = 22.530988284132697.
+96 / 100 epoch start.
+mean loss = 22.525562955574557.
+97 / 100 epoch start.
+mean loss = 22.522187701680444.
+98 / 100 epoch start.
+mean loss = 22.550634394992482.
+99 / 100 epoch start.
+mean loss = 22.61002827232534.
+100 / 100 epoch start.
+mean loss = 22.49661200967702.
+Validation Loss:  22.8548836906751

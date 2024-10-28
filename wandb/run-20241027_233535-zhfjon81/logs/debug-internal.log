@@ -1,0 +1,17 @@
+{"time":"2024-10-27T23:35:35.31551647+09:00","level":"INFO","msg":"using version","core version":"0.18.5"}
+{"time":"2024-10-27T23:35:35.3157024+09:00","level":"INFO","msg":"created symlink","path":"/home/u01170/AI_practice/pk_prediction/wandb/run-20241027_233535-zhfjon81/logs/debug-core.log"}
+{"time":"2024-10-27T23:35:35.436269861+09:00","level":"INFO","msg":"created new stream","id":"zhfjon81"}
+{"time":"2024-10-27T23:35:35.436452116+09:00","level":"INFO","msg":"stream: started","id":"zhfjon81"}
+{"time":"2024-10-27T23:35:35.43656106+09:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"zhfjon81"}}
+{"time":"2024-10-27T23:35:35.437916005+09:00","level":"INFO","msg":"handler: started","stream_id":{"value":"zhfjon81"}}
+{"time":"2024-10-27T23:35:35.438002213+09:00","level":"INFO","msg":"sender: started","stream_id":"zhfjon81"}
+{"time":"2024-10-27T23:35:35.75294719+09:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-10-27T23:41:00.977399608+09:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-10-27T23:41:00.980739482+09:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-10-27T23:41:01.977232548+09:00","level":"INFO","msg":"handler: operation stats","stats":{"operations":[{"desc":"uploading config.yaml","runtime_seconds":0.415694467,"progress":"654B/654B"}],"total_operations":1}}
+{"time":"2024-10-27T23:41:02.156005195+09:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2024-10-27T23:41:03.562910248+09:00","level":"INFO","msg":"stream: closing","id":"zhfjon81"}
+{"time":"2024-10-27T23:41:03.562935139+09:00","level":"INFO","msg":"handler: closed","stream_id":{"value":"zhfjon81"}}
+{"time":"2024-10-27T23:41:03.562964613+09:00","level":"INFO","msg":"writer: Close: closed","stream_id":{"value":"zhfjon81"}}
+{"time":"2024-10-27T23:41:03.563066865+09:00","level":"INFO","msg":"sender: closed","stream_id":"zhfjon81"}
+{"time":"2024-10-27T23:41:03.564107042+09:00","level":"INFO","msg":"stream: closed","id":"zhfjon81"}

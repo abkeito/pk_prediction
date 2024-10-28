@@ -15,7 +15,7 @@ def get_color(data_type):
 # フレームサイズの設定
 frame_width = 640
 frame_height = 480
-input_file = f"/home/u01170/AI_practice/pk_prediction/src/making_datasets/goal_segment/dataset/101.mp4_pose.json"
+input_file = f"/home/u01170/AI_practice/pk_prediction/src/making_datasets/goal_segment/dataset/102.mp4_pose.json"
 # input_file = "/home/u01170/AI_practice/pk_prediction/data/predict_pose.json"
 output_file = '/home/u01170/AI_practice/pk_prediction/src/making_datasets/goal_segment/video/display_points.mp4'
 #inputfiles = os.listdir("/home/u01170/AI_practice/pk_prediction/src/making_datasets/goal_segment/dataset/dataset_example")
@@ -54,7 +54,7 @@ for frame in frames_data:
                 # 部位のラベルを描画
                 cv2.putText(img, part, (x + 5, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.2, (0, 0, 0), 1, cv2.LINE_AA)  # 黒色のラベル
             else:
-                print(x, y, "ohwow")
+                print(x, y, "Outside the boundary")
     
     out.write(img)  # フレームを動画に追加
 

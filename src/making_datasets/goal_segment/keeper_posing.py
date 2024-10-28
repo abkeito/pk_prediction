@@ -103,6 +103,7 @@ def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame
 
             transformation_matrix = np.array([[(7.32 / xb), 0], [-(2.44*yb/ya/xb), 2.44/ya]])
             closest_index = 0
+
             # キーパーのindexをとってくる
             if result.boxes.xywh.shape != (0,4):
                 boxes = result.boxes
@@ -112,21 +113,31 @@ def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame
                     box_areas.append(w*h)      
                 # 最小の距離を持つ点のインデックスを取得
                 closest_index = np.argmax(np.array(box_areas))
-
             pose_coordinates = np.array(result.keypoints.xyn.tolist()[closest_index])
+
+            # 形が0ではないかcheck
             if pose_coordinates.shape != (0,):
                 subtract_value = np.array([goal_lu[0], goal_lu[1]])
                 pose_coordinates = np.where(np.all(pose_coordinates == [0, 0], axis=1, keepdims=True), 
                                         pose_coordinates, 
                                         pose_coordinates - subtract_value)
-                pose_coordinates_transformed = np.dot(transformation_matrix, pose_coordinates.T)
+                pose_coordinates_transformed = np.dot(transformation_matrix, pose_coordinates.T).T
                 not_points_count = 0
-                for i in range(len(pose_coordinates_transformed[0])):
-                    if [pose_coordinates_transformed[0][i], pose_coordinates_transformed[1][i]] == [0,0]:
+
+                # 重心を計算
+                valid_points = pose_coordinates_transformed[~np.all(pose_coordinates_transformed == [0, 0], axis=1)]
+                if valid_points.size > 0:
+                    pose_centroid = np.mean(valid_points, axis=0)
+                else:
+                    pose_centroid = np.array([0, 0])  # 有効な座標がない場合、重心を[0, 0]とする
+
+                for i in range(len(pose_coordinates_transformed)):
+                    if [pose_coordinates_transformed[i][0], pose_coordinates_transformed[i][1]] == [0,0]:
                         not_points_count += 1
-                        pose_coordinates_transformed[0][i], pose_coordinates_transformed[1][i] = 3.66, 1.22
-                if are_coordinates_within_bounds(pose_coordinates_transformed) and not_points_count <= 12:
-                    keeper_pose = dict(zip(person_keypoints, pose_coordinates_transformed.T.tolist()))
+                        pose_coordinates_transformed[i][0], pose_coordinates_transformed[i][1] = pose_centroid[0], pose_centroid[1]
+
+                if are_coordinates_within_bounds(pose_coordinates_transformed.T) and not_points_count <= 12: #読み込まれているの少なすぎたら前回の引きつぐ
+                    keeper_pose = dict(zip(person_keypoints, pose_coordinates_transformed.tolist()))
 
                 
             if frame_id >= kick_frame_id - (split_frame + input_frame) and frame_id < kick_frame_id - split_frame:
@@ -148,5 +159,5 @@ def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame
 
     print(f"Detected objects with masks saved to {outputfile}")
 
-# keeper_posing("102.mp4", os.path.join(GOAL_OUTPUT_FOLDER, "102.mp4_goal.json"), 5, 15, 15)
+keeper_posing("102.mp4", os.path.join(GOAL_OUTPUT_FOLDER, "102.mp4_goal.json"), 5, 15, 15)
 # srun -p p -t 10:00 --gres=gpu:1 --pty poetry run python src/making_datasets/goal_segment/keeper_posing.py

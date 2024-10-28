@@ -1,0 +1,12 @@
+{"time":"2024-10-27T23:33:29.488543105+09:00","level":"INFO","msg":"using version","core version":"0.18.5"}
+{"time":"2024-10-27T23:33:29.488786057+09:00","level":"INFO","msg":"created symlink","path":"/home/u01170/AI_practice/pk_prediction/wandb/run-20241027_233329-r52uq5nc/logs/debug-core.log"}
+{"time":"2024-10-27T23:33:29.609763029+09:00","level":"INFO","msg":"created new stream","id":"r52uq5nc"}
+{"time":"2024-10-27T23:33:29.609938938+09:00","level":"INFO","msg":"stream: started","id":"r52uq5nc"}
+{"time":"2024-10-27T23:33:29.610050761+09:00","level":"INFO","msg":"handler: started","stream_id":{"value":"r52uq5nc"}}
+{"time":"2024-10-27T23:33:29.610350769+09:00","level":"INFO","msg":"sender: started","stream_id":"r52uq5nc"}
+{"time":"2024-10-27T23:33:29.610506124+09:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"r52uq5nc"}}
+{"time":"2024-10-27T23:33:29.925999392+09:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2024-10-27T23:35:02.112762849+09:00","level":"INFO","msg":"stream: closing","id":"r52uq5nc"}
+{"time":"2024-10-27T23:35:02.112868455+09:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2024-10-27T23:35:02.115240906+09:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2024-10-27T23:35:02.948791002+09:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}

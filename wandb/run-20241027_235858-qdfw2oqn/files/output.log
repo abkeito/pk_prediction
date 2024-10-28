@@ -1,0 +1,52 @@
+11.7
+1.13.1+cu117
+gpu
+/home/u01170/AI_practice/pk_prediction/src/prediction_abe/model_train.py:52: UserWarning: Creating a tensor from a list of numpy.ndarrays is extremely slow. Please consider converting the list to a single numpy.ndarray with numpy.array() before converting to a tensor. (Triggered internally at ../torch/csrc/utils/tensor_new.cpp:230.)
+  input, output = torch.tensor(dataset.get_inputs(), dtype = torch.float32), torch.tensor(dataset.get_outputs(), dtype = torch.float32)
+scaler info  [3.43900424 1.40410805 3.23509259 1.34475934 3.82082695 1.29993065
+ 3.18132646 1.36421182 3.91488237 1.30304065 3.55592496 1.52943766
+ 3.33968858 1.54084022 3.59239359 1.59439913 3.30899024 1.63224922
+ 3.56615371 1.67676738 3.25768994 1.70261445 3.61626927 1.79215373
+ 3.44713154 1.79874294 3.66368612 2.01603253 3.34250296 2.01812113
+ 3.75380971 2.20945699 3.33909463 2.20996278] [1.44577098 0.17307607 0.85660898 0.13703838 0.82322711 0.13101483
+ 0.779596   0.14511126 0.67499993 0.13267775 1.59286361 0.22260472
+ 1.57443443 0.22932126 1.22385093 0.22757181 1.40904161 0.23908089
+ 1.32769832 0.24680274 1.52058556 0.24947441 1.11993218 0.22027362
+ 1.12289955 0.22219586 1.14272406 0.21780594 1.10847561 0.21769899
+ 0.89087369 0.27270645 0.8226685  0.27380032]
+shape of the data: input, output =  torch.Size([112, 30, 34]) torch.Size([112, 30, 34])
+train:  90 90
+valid:  10 10
+test:  12 12 [ 56  72  97  96 110  31  48  83  18  40  11  69]
+Traceback (most recent call last):
+  File "/home/u01170/AI_practice/pk_prediction/src/prediction_abe/model_train.py", line 83, in <module>
+    json.dump(data_info, file, indent=4)
+  File "/home/u01170/.pyenv/versions/3.10.6/lib/python3.10/json/__init__.py", line 179, in dump
+    for chunk in iterable:
+  File "/home/u01170/.pyenv/versions/3.10.6/lib/python3.10/json/encoder.py", line 431, in _iterencode
+    yield from _iterencode_dict(o, _current_indent_level)
+  File "/home/u01170/.pyenv/versions/3.10.6/lib/python3.10/json/encoder.py", line 405, in _iterencode_dict
+    yield from chunks
+  File "/home/u01170/.pyenv/versions/3.10.6/lib/python3.10/json/encoder.py", line 405, in _iterencode_dict
+    yield from chunks
+  File "/home/u01170/.pyenv/versions/3.10.6/lib/python3.10/json/encoder.py", line 438, in _iterencode
+    o = _default(o)
+  File "/home/u01170/.pyenv/versions/3.10.6/lib/python3.10/json/encoder.py", line 179, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type ndarray is not JSON serializable
+Traceback (most recent call last):
+  File "/home/u01170/AI_practice/pk_prediction/src/prediction_abe/model_train.py", line 83, in <module>
+    json.dump(data_info, file, indent=4)
+  File "/home/u01170/.pyenv/versions/3.10.6/lib/python3.10/json/__init__.py", line 179, in dump
+    for chunk in iterable:
+  File "/home/u01170/.pyenv/versions/3.10.6/lib/python3.10/json/encoder.py", line 431, in _iterencode
+    yield from _iterencode_dict(o, _current_indent_level)
+  File "/home/u01170/.pyenv/versions/3.10.6/lib/python3.10/json/encoder.py", line 405, in _iterencode_dict
+    yield from chunks
+  File "/home/u01170/.pyenv/versions/3.10.6/lib/python3.10/json/encoder.py", line 405, in _iterencode_dict
+    yield from chunks
+  File "/home/u01170/.pyenv/versions/3.10.6/lib/python3.10/json/encoder.py", line 438, in _iterencode
+    o = _default(o)
+  File "/home/u01170/.pyenv/versions/3.10.6/lib/python3.10/json/encoder.py", line 179, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type ndarray is not JSON serializable
