@@ -3,11 +3,11 @@
 import torch
 import torch.nn as nn
 from torch import cuda
-
+import numpy as np
 
 # 座標の時系列データを入力として, 座標の時系列データを出力とする
 class CoordinatePredictionModel(nn.Module):
-    def __init__(self, input_size, output_size, hidden_size=300):
+    def __init__(self, input_size, output_size, hidden_size=256):
         super(CoordinatePredictionModel, self).__init__()
         self.W_lstm_enc = nn.LSTMCell(input_size, hidden_size) 
         self.W_lstm_dec = nn.LSTMCell(output_size, hidden_size)
@@ -49,7 +49,8 @@ class CoordinatePredictionModel(nn.Module):
             outputs = outputs.to(self.device)
         
         for input in inputs:
-            self.encode(input)
+            if input != torch.tensor(np.tile([0, 0], 34)):
+                self.encode(input)
 
         # batch_size = inputs.size(1)
 

@@ -46,11 +46,11 @@ def goal_segment(input_video_name: str):
             class_name = classes[class_id]
             posts.append([(x1+x2)/2, y1, (x1+x2)/2, y2, confidence]) # postの上と下とconfidenceを入れる
 
-        if len(posts) == 2 and posts[0][4] > 0.5 and posts[1][4] > 0.5:
-            if posts[0][0] < posts[1][0]:
-                left_post, right_post = posts[0], posts[1]
-            else:
-                left_post, right_post = posts[1], posts[0]
+        if len(posts) >= 2:
+            left_index = np.argmin(np.array([post[0] for post in posts]))
+            right_index = np.argmax(np.array([post[0] for post in posts]))
+            left_post = posts[left_index]
+            right_post = posts[right_index]
             goal_frames += 1
             x1, y1, x2, y2, x3, y3, x4, y4 = left_post[0], left_post[1], right_post[0], right_post[1], left_post[2], left_post[3], right_post[2], right_post[3]
 

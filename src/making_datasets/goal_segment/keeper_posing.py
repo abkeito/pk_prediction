@@ -51,11 +51,7 @@ def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame
     # Load a model
     model = YOLO("yolo11x-pose.pt") 
     person_keypoints = [
-        "nose",          # 0
-        "left_eye",      # 1
-        "right_eye",     # 2
-        "left_ear",      # 3
-        "right_ear",     # 4
+        "face", # 0~4個目を1つにまとめる
         "left_shoulder", # 5
         "right_shoulder",# 6
         "left_elbow",    # 7
@@ -77,7 +73,9 @@ def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame
 
     keeper_info = []
     keeper_pose = None
+    pose_coordinates_transformed = None
     for frame_id, result in enumerate(results):
+        prev_pose_coordinates_transformed = pose_coordinates_transformed
         # goal の情報
         if frame_id < len(goal_data):
             goal_coordinates = goal_data[frame_id]["coordinates"]
@@ -91,7 +89,7 @@ def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame
                     (goal_coordinates["right-down"][1] - y_min) / (y_max - y_min)]
             goal_centroid = [np.mean(goal_lu[0] + goal_ld[0] + goal_ru[0] + goal_rd[0]), np.mean(goal_lu[1] + goal_ld[1] + goal_ru[1] + goal_rd[1])]
 
-            xa, ya = goal_ld[0] - goal_lu[0], goal_ld[1] - goal_lu[1]
+            xa, ya = goal_ld[0] - goal_lu[0], goal_ld[1] - goal_lu[1] # クロップ後の動画の中での0~1ベクトル
             xb, yb = goal_ru[0] - goal_lu[0], goal_ru[1] - goal_lu[1]
 
             if ya == 0:
@@ -113,8 +111,11 @@ def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame
                     box_areas.append(w*h)      
                 # 最小の距離を持つ点のインデックスを取得
                 closest_index = np.argmax(np.array(box_areas))
-            pose_coordinates = np.array(result.keypoints.xyn.tolist()[closest_index])
 
+            pose_coordinates = np.array(result.keypoints.xyn.tolist()[closest_index])
+            print(pose_coordinates)
+            print(xa, ya, xb, yb)
+            print(transformation_matrix)
             # 形が0ではないかcheck
             if pose_coordinates.shape != (0,):
                 subtract_value = np.array([goal_lu[0], goal_lu[1]])
@@ -122,22 +123,30 @@ def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame
                                         pose_coordinates, 
                                         pose_coordinates - subtract_value)
                 pose_coordinates_transformed = np.dot(transformation_matrix, pose_coordinates.T).T
+                print(pose_coordinates_transformed)
                 not_points_count = 0
 
-                # 重心を計算
+                # face を一つにまとめる
+                # print(pose_coordinates_transformed[:5])
+                face_valid_points = pose_coordinates_transformed[:5][~np.all(pose_coordinates_transformed[:5] == [0, 0], axis=1)]
                 valid_points = pose_coordinates_transformed[~np.all(pose_coordinates_transformed == [0, 0], axis=1)]
-                if valid_points.size > 0:
-                    pose_centroid = np.mean(valid_points, axis=0)
+                body_centroid = np.mean(valid_points, axis=0).reshape(1, -1)
+                if face_valid_points.size > 0:
+                    face_centroid = np.mean(face_valid_points, axis=0).reshape(1, -1)
                 else:
-                    pose_centroid = np.array([0, 0])  # 有効な座標がない場合、重心を[0, 0]とする
-
+                    face_centroid = body_centroid.reshape(1, -1) # 有効な座標がない場合、重心を[0, 0]とする
+                # なかったら前回を引き継ぐ or 全身の重心
                 for i in range(len(pose_coordinates_transformed)):
-                    if [pose_coordinates_transformed[i][0], pose_coordinates_transformed[i][1]] == [0,0]:
+                    if np.array_equal(pose_coordinates_transformed[i], [0, 0]) and prev_pose_coordinates_transformed is not None and not np.array_equal(prev_pose_coordinates_transformed[i], [0, 0]):
                         not_points_count += 1
-                        pose_coordinates_transformed[i][0], pose_coordinates_transformed[i][1] = pose_centroid[0], pose_centroid[1]
+                        pose_coordinates_transformed[i][0], pose_coordinates_transformed[i][1] = prev_pose_coordinates_transformed[i][0], prev_pose_coordinates_transformed[i][1]
+                    elif np.array_equal(pose_coordinates_transformed[i], [0, 0]):
+                        pose_coordinates_transformed[i][0], pose_coordinates_transformed[i][1] = body_centroid[0][0], body_centroid[0][1]
 
-                if are_coordinates_within_bounds(pose_coordinates_transformed.T) and not_points_count <= 12: #読み込まれているの少なすぎたら前回の引きつぐ
-                    keeper_pose = dict(zip(person_keypoints, pose_coordinates_transformed.tolist()))
+                pose_coordinates_13 = np.concatenate((face_centroid, pose_coordinates_transformed[5:]), axis=0)
+                if are_coordinates_within_bounds(pose_coordinates_transformed.T) and not_points_count <= 14: 
+                    #読み込まれているの少なすぎたら前回の引きつぐ
+                    keeper_pose = dict(zip(person_keypoints, pose_coordinates_13.tolist()))
 
                 
             if frame_id >= kick_frame_id - (split_frame + input_frame) and frame_id < kick_frame_id - split_frame:
@@ -159,5 +168,5 @@ def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame
 
     print(f"Detected objects with masks saved to {outputfile}")
 
-keeper_posing("102.mp4", os.path.join(GOAL_OUTPUT_FOLDER, "102.mp4_goal.json"), 5, 15, 15)
+# keeper_posing("102.mp4", os.path.join(GOAL_OUTPUT_FOLDER, "102.mp4_goal.json"), 5, 15, 15)
 # srun -p p -t 10:00 --gres=gpu:1 --pty poetry run python src/making_datasets/goal_segment/keeper_posing.py

@@ -10,9 +10,9 @@ class CoordinateData:
         self.output_list = []
         self.input_seqsize = 30
         self.output_seqsize = 30
-        self.node_size = 17
-        self.parts = ['nose', 'left_eye', 'right_eye', 'left_ear', 'right_ear', 'left_shoulder', 'right_shoulder', 'left_elbow', 'right_elbow', 'left_wrist', 'right_wrist', 'left_hip', 'right_hip', 'left_knee', 'right_knee', 'left_ankle', 'right_ankle']
-
+        self.node_size = 34
+        self.parts = ['nose', 'left_eye', 'right_eye', 'left_ear', 'right_ear', 'left_shoulder', 'right_shoulder', 'left_elbow', 'right_elbow', 'left_wrist', 'right_wrist', 'left_hip', 'right_hip', 'left_knee', 'right_knee', 'left_ankle', 'right_ankle',
+                      'nose-move', 'left_eye-move', 'right_eye-move', 'left_ear-move', 'right_ear-move', 'left_shoulder-move', 'right_shoulder-move', 'left_elbow-move', 'right_elbow-move', 'left_wrist-move', 'right_wrist-move', 'left_hip-move', 'right_hip-move', 'left_knee-move', 'right_knee-move', 'left_ankle-move', 'right_ankle-move']
         json_load = []
         for filename in filenames:
             try:
@@ -31,11 +31,11 @@ class CoordinateData:
                 if json_load[i][j]["data_type"] == "input":
                     for k in range(self.node_size):
                         if json_load[i][j]["keeper-pose"] == None:
-                            Coordinate_list.extend([3.66,1.22])
+                            Coordinate_list.extend([0,0])
                         else:
                             Coordinate_list.extend(json_load[i][j]["keeper-pose"][self.parts[k]])
                     batch_list.append(Coordinate_list)
-            batch_list =  [np.tile([3.66, 1.22], 17) for _ in range(self.input_seqsize - len(batch_list))] + batch_list
+            batch_list =  [np.tile([0, 0], self.node_size) for _ in range(self.input_seqsize - len(batch_list))] + batch_list
             self.input_list.append(batch_list)
 
         for i in range(min(self.batch_size, len(json_load))):
@@ -45,11 +45,11 @@ class CoordinateData:
                 if json_load[i][j]["data_type"] == "output":
                     for k in range(self.node_size):
                         if json_load[i][j]["keeper-pose"] == None:
-                            Coordinate_list.extend([3.66,1.22])
+                            Coordinate_list.extend([0,0])
                         else:
                             Coordinate_list.extend(json_load[i][j]["keeper-pose"][self.parts[k]])
                     batch_list.append(Coordinate_list)
-            batch_list = batch_list + [np.tile([3.66, 1.22], 17) for _ in range(self.input_seqsize - len(batch_list))]
+            batch_list = batch_list + [batch_list[len(batch_list)-1] for _ in range(self.input_seqsize - len(batch_list))]
             self.output_list.append(batch_list)
 
     def batch_size(self):

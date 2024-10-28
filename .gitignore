@@ -7,4 +7,5 @@
 *.txt
 *.model
 *.pt
+*.log
 __pycache__/
