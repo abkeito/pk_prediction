@@ -3,28 +3,25 @@
 import os
 import json
 import torch
-import random
 
 class CoodinateData:
-    def __init__(self):
+    def __init__(self, dirname):
         self.input_list = []
         self.output_list = []
-        self.train_ratio = 0.9 # 全データのうち訓練データにする割合
 
-        self.parts = ['nose', 'left_eye', 'right_eye', 'left_ear', 'right_ear', 'left_shoulder', 'right_shoulder', 'left_elbow', 'right_elbow', 'left_wrist', 'right_wrist', 'left_hip', 'right_hip', 'left_knee', 'right_knee', 'left_ankle', 'right_ankle']
-        self.node_size = len(self.parts) # 17
+        self.parts = ['face', 'left_shoulder', 'right_shoulder', 'left_elbow', 'right_elbow', 'left_wrist', 'right_wrist', 'left_hip', 'right_hip', 'left_knee', 'right_knee', 'left_ankle', 'right_ankle', 'face-move', 'left_shoulder-move', 'right_shoulder-move', 'left_elbow-move', 'right_elbow-move', 'left_wrist-move', 'right_wrist-move', 'left_hip-move', 'right_hip-move', 'left_knee-move', 'right_knee-move', 'left_ankle-move', 'right_ankle-move']
+        self.node_size = len(self.parts)
 
-        self.input_dir = "src/prediction/data/input"
-        input_files = [f for f in os.listdir(self.input_dir) if os.path.isfile(os.path.join(self.input_dir, f))]
-        random.shuffle(input_files)
+        self.input_dir = dirname
+        self.input_files = [f for f in os.listdir(self.input_dir) if os.path.isfile(os.path.join(self.input_dir, f))]
 
-        self.batch_size = len(input_files)
+        self.batch_size = len(self.input_files)
 
         # 各データをまとめてバッチ化
         for i in range(self.batch_size):
             # jsonファイルを順に読み込み
             # 数字を変えれば使うデータを変えられる
-            with open(os.path.join(self.input_dir, input_files[i]), "r") as json_open:
+            with open(os.path.join(self.input_dir, self.input_files[i]), "r") as json_open:
                 json_load = json.load(json_open)
                 input_frame_list = []
                 output_frame_list = []
@@ -65,14 +62,11 @@ class CoodinateData:
     def output_dim(self):
         return len(self.output_list[0][0])
 
-    def get_train_inputs(self):
-        return self.input_list[0:int(self.batch_size * self.train_ratio)]
+    def get_inputs(self):
+        return self.input_list
 
-    def get_train_outputs(self):
-        return self.output_list[0:int(self.batch_size * self.train_ratio)]
+    def get_outputs(self):
+        return self.output_list
 
-    def get_test_inputs(self):
-        return self.input_list[int(self.batch_size * self.train_ratio):self.batch_size]
-
-    def get_test_outputs(self):
-        return self.output_list[int(self.batch_size * self.train_ratio):self.batch_size]
+    def get_input_files(self):
+        return self.input_files

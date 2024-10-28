@@ -11,19 +11,19 @@ import data
 from model import CoodinatePredictionModel
 from pose_prediction import pose_prediction
 
-EPOCH_NUM = 100 # 適宜変えてね
-EPOCH_NUM_VAL = 50
+EPOCH_NUM = 50 # 適宜変えてね
+EPOCH_NUM_VAL = 10
 
 train_loss_list = []
 val_loss_list = []
 
 # 交差検証
-def cross_validate(dataset, model, k=5):
+def cross_validate(inputs, outputs, model, k=5):
     print("cross validation start.")
 
     # データのパディング
-    all_inputs = model.padding(dataset.get_train_inputs()).transpose(0, 1)
-    all_outputs = model.padding(dataset.get_train_outputs()).transpose(0, 1)
+    all_inputs = model.padding(inputs).transpose(0, 1)
+    all_outputs = model.padding(outputs).transpose(0, 1)
 
     #データのインデックスをシャッフル
     indices = list(range(len(all_inputs)))
@@ -52,6 +52,7 @@ def cross_validate(dataset, model, k=5):
         val_outputs = val_outputs.transpose(0, 1)
 
         # train
+        model.train()
         for epoch in range(EPOCH_NUM_VAL):
             model.reset_state()
             optimizer.zero_grad()
@@ -60,19 +61,23 @@ def cross_validate(dataset, model, k=5):
             optimizer.step()
 
         # validation 
-        model.reset_state()
         with torch.no_grad():  # 勾配計算を無効にする
+            model.eval()
             val_loss = model(val_inputs, val_outputs)
         sum_loss += val_loss.item()
     print("mean loss = {0}".format(sum_loss/k))
     val_loss_list.append(sum_loss/k)
 
 # データセットの選択
-dataset = data.CoodinateData()
+train_dataset = data.CoodinateData('src/prediction/data/input/train')
+test_dataset = data.CoodinateData('src/prediction/data/input/test')
 # dataset = random_data.RandomCoodinateData()
 
-input_size = dataset.input_dim()
-output_size = dataset.output_dim()
+input_size = train_dataset.input_dim()
+output_size = train_dataset.output_dim()
+
+# 隠れ層のサイズ
+hidden_size = 50
 
 # デバイスの設定
 if torch.cuda.is_available():
@@ -81,22 +86,21 @@ else:
     device = torch.device('cpu')
 
 #学習モデルの選択
-model = CoodinatePredictionModel(input_size, output_size).to(device)
+model = CoodinatePredictionModel(input_size, output_size, hidden_size).to(device)
 
 #最適化方法
-lr = 10**-3 # 学習率
+lr = 0.021028833040228276 # 学習率
 optimizer = optim.Adam(model.parameters(), lr)
 
-# 学習
+inputs = train_dataset.get_inputs()
+outputs = train_dataset.get_outputs()
+
+model.train()
 for epoch in range(EPOCH_NUM):
     print("{0} / {1} epoch start.".format(epoch + 1, EPOCH_NUM))
 
     model.reset_state()
     optimizer.zero_grad()
-
-    inputs = dataset.get_train_inputs()
-    outputs = dataset.get_train_outputs()
-
     loss = model(inputs, outputs)
     loss.backward()
     optimizer.step()
@@ -105,11 +109,11 @@ for epoch in range(EPOCH_NUM):
     print("loss = {0}.".format(sum_loss))
     train_loss_list.append(sum_loss)
     
-    if (epoch + 1) % 10 == 0:
-        model_file = "src/prediction/trained_model/prediction_" + str(epoch + 1) + ".model"
-        torch.save(model.state_dict(), model_file)
+    # if (epoch + 1) % 10 == 0:
+    model_file = "src/prediction/trained_model/prediction_" + str(epoch + 1) + ".model"
+    torch.save(model.state_dict(), model_file)
 
-    cross_validate(dataset, model, k=5)
+    cross_validate(inputs, outputs, model, k=5)
 
 # 損失の描画
 ep = range(1, EPOCH_NUM + 1)
@@ -119,19 +123,23 @@ plt.plot(ep, val_loss_list, label="val")
 plt.xlabel("epoch")
 plt.ylabel("loss")
 plt.legend()
-plt.savefig("src/prediction/data/loss.png")
+plt.savefig("src/prediction/data/loss_h1000.png")
 
 # test
 test = False # テストも行うときはTrueにする
 if test:
-    model.load_state_dict(torch.load("src/prediction/trained_model/prediction_{0}.model".format(EPOCH_NUM)))
+    # テストデータのリスト
+    input_files = test_dataset.get_input_files()
 
-    inputs = dataset.get_test_inputs()
+    model.load_state_dict(torch.load("src/prediction/trained_model/prediction_{0}.model".format(60)))
+    model.reset_state()
+
+    inputs = test_dataset.get_inputs()
 
     outputs = model(inputs).transpose(0, 1)
 
     # 出力をファイルに保存
-    pose_prediction(inputs, outputs)
+    pose_prediction(inputs, outputs, input_files)
     
 # srun -p p -t 10:00 --gres=gpu:1 --pty poetry run python src/prediction/model_train.py 
     
