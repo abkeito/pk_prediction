@@ -70,3 +70,10 @@ class CoodinateData:
 
     def get_input_files(self):
         return self.input_files
+
+    # 総フレーム数
+    def out_seq_len(self):
+        res = 0
+        for output in self.output_list:
+            res += output.size(0)
+        return res

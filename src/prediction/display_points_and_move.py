@@ -15,8 +15,10 @@ def get_color(data_type):
 # フレームサイズの設定
 frame_width = 640
 frame_height = 480
-input_file = f"src/prediction/data/predict/4_prediction.json"
-output_file = 'src/prediction/data/video/4_prediction.mp4'
+input_file = f"src/prediction/data/predict/54_prediction.json"
+# input_file = 'src/prediction/data/input/test/54_dataset.json'
+output_file = 'src/prediction/data/video/54_prediction_no_arrow.mp4'
+# output_file = 'src/prediction/data/video/54_original.mp4'
 
 with open(input_file, 'r', encoding='utf-8') as file:
     frames_data = json.load(file)
@@ -57,7 +59,7 @@ for frame in frames_data:
                 # 部位のラベルを描画
                 cv2.putText(img, pose_part, (x + 5, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.2, (0, 0, 0), 1, cv2.LINE_AA)  # 黒色のラベル
                 # 矢印を描画
-                cv2.arrowedLine(img, (x, y), (end_x, end_y), color, 1, tipLength=0.2)
+                # cv2.arrowedLine(img, (x, y), (end_x, end_y), color, 1, tipLength=0.2)
             else:
                 print(x, y, "Outside the boundary")
     

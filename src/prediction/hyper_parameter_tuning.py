@@ -11,6 +11,9 @@ import data
 from model import CoodinatePredictionModel
 from pose_prediction import pose_prediction
 
+EPOCH_NUM = 50
+EPOCH_NUM_VAL = 20
+
 # データセットの選択
 dataset = data.CoodinateData('src/prediction/data/input/train')
 
@@ -58,7 +61,7 @@ def cross_validate(inputs, outputs, model, optimizer, k=5):
 
         # train
         model.train()
-        for epoch in range(10):
+        for epoch in range(EPOCH_NUM_VAL):
             model.reset_state()
             optimizer.zero_grad()
             loss = model(train_inputs, train_outputs)
@@ -87,7 +90,7 @@ def objective(params):
     outputs = dataset.get_outputs()
     
     model.train()
-    for epoch in range(10):  # エポック数は調整可能
+    for epoch in range(EPOCH_NUM):  # エポック数は調整可能
         model.reset_state()
         optimizer.zero_grad()
         loss = model(inputs, outputs)
