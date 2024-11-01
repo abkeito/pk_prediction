@@ -6,6 +6,6 @@
 
 4.get_flames.pyで、dataset/videoの3秒の動画の全フレームをそれぞれフレームIDと共に画像化し、dataset/flameに保存
 
-5.蹴った瞬間のフレームIDを確かめ、flameID.txtに保存
+5.蹴った瞬間のフレームIDを確かめ、flameID.txtに保存(手動)
 
 6.create_text.pyで、flameID.txtに保存されたフレームIDをdataset/textに保存
