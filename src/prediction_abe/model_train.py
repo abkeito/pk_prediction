@@ -15,7 +15,7 @@ from data import standardize
 # import random_data
 from model import CoordinatePredictionModel
 
-EPOCH_NUM = 100 # 適宜変えてね
+EPOCH_NUM = 300 # 適宜変えてね
 
 # wandb を設定
 wandb.init(
@@ -50,6 +50,7 @@ input_frame_size, output_frame_size = dataset.input_seqsize, dataset.output_seqs
 scaler = StandardScaler()
 
 # 標準化 -> (batch_size * frame_size * node_size) をreshape したり、input と output を合わせて標準化
+#print(np.array(dataset.get_inputs()).shape)
 input, output = torch.tensor(dataset.get_inputs(), dtype = torch.float32), torch.tensor(dataset.get_outputs(), dtype = torch.float32)
 combined = torch.cat((input.reshape(-1, node_size), output.reshape(-1, node_size)), dim=0)
 scaler.fit(combined)
@@ -70,8 +71,8 @@ print("test: ",len(test_input), len(test_output), test_indices)
 # 保存するデータを辞書形式でまとめる
 data_info = {
     "Dataset_Indices": {
-        "train_valid_indices": train_valid_indices.tolist(),
-        "test_indices": test_indices.tolist()
+        "train_valid_indices": [filepaths[idx] for idx in train_valid_indices.tolist()],
+        "test_indices": [filepaths[idx] for idx in test_indices.tolist()]
     },
     "Scaler_Info": {
         "Mean": scaler.mean_.tolist(),

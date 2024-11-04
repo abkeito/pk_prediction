@@ -49,7 +49,6 @@ class CoordinatePredictionModel(nn.Module):
             outputs = outputs.to(self.device)
         
         for input in inputs:
-            if input != torch.tensor(np.tile([0, 0], 34)):
                 self.encode(input)
 
         # batch_size = inputs.size(1)

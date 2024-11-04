@@ -113,9 +113,7 @@ def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame
                 closest_index = np.argmax(np.array(box_areas))
 
             pose_coordinates = np.array(result.keypoints.xyn.tolist()[closest_index])
-            print(pose_coordinates)
-            print(xa, ya, xb, yb)
-            print(transformation_matrix)
+
             # 形が0ではないかcheck
             if pose_coordinates.shape != (0,):
                 subtract_value = np.array([goal_lu[0], goal_lu[1]])
@@ -123,7 +121,7 @@ def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame
                                         pose_coordinates, 
                                         pose_coordinates - subtract_value)
                 pose_coordinates_transformed = np.dot(transformation_matrix, pose_coordinates.T).T
-                print(pose_coordinates_transformed)
+
                 not_points_count = 0
 
                 # face を一つにまとめる

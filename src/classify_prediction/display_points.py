@@ -12,24 +12,27 @@ def get_color(data_type):
     else:
         return (0, 0, 0)    # 黒
 
-# scalerなどを読みとる
-with open(os.path.join("/home/u01170/AI_practice/pk_prediction/src/prediction_abe/data_info", "data_and_scaler_info.json"), "r") as f:
-    data_info = json.load(f)
-
-test_indices = [filename.split('/')[len(filename.split('/'))-1].split('_')[0] for filename in data_info["Dataset_Indices"]["test_indices"]]
 
 # フレームサイズの設定
 frame_width = 640
 frame_height = 480
-input_folder = "/home/u01170/AI_practice/pk_prediction/src/prediction_abe/prediction_data"
-output_folder = "/home/u01170/AI_practice/pk_prediction/src/prediction_abe/prediction_video"
-#inputfiles = os.listdir("/home/u01170/AI_practice/pk_prediction/src/making_datasets/goal_segment/dataset/dataset_example")
+RESULT_FOLDER_PATH = "/home/u01170/AI_practice/pk_prediction/src/classify_prediction/test_result"
+VIDEO_FOLDER_PATH = "/home/u01170/AI_practice/pk_prediction/src/classify_prediction/result_video"
+ORIGINAL_FOLDER = "/home/u01170/AI_practice/pk_prediction/src/classify_prediction/data/original"
+filenames = os.listdir(RESULT_FOLDER_PATH)
 
-for index in test_indices:
-    input_file = os.path.join(input_folder, str(index) + "predict_pose.json")
-    output_file = os.path.join(output_folder, str(index) + ".mp4")
-    with open(input_file, 'r', encoding='utf-8') as file:
-        frames_data = json.load(file)
+for filename in filenames:
+    # データセットの選択
+    output_file = os.path.join(VIDEO_FOLDER_PATH, filename.split("_")[0] + "_result.mp4")
+    filepath = os.path.join(RESULT_FOLDER_PATH, filename)
+    original_path = os.path.join(ORIGINAL_FOLDER, filename.split("_")[0] + "_dataset.json")
+
+    with open(filepath, 'r', encoding='utf-8') as file:
+        result = json.load(file)["result"]
+
+    with open(original_path, 'r', encoding='utf-8') as file:
+        original_data = json.load(file)
+
 
 
     # 動画ライターを設定
@@ -44,7 +47,7 @@ for index in test_indices:
     scaled_bottom_right = (int(bottom_right[0] * 80 + 50), int(bottom_right[1] * 80 + 200))
 
     # 座標を描画して動画を生成
-    for frame in frames_data:
+    for frame in original_data:
         img = np.ones((frame_height, frame_width, 3), dtype=np.uint8) * 255  # 白背景
 
         # タイトルを描画
@@ -52,9 +55,32 @@ for index in test_indices:
         # 枠を描画（矩形の線を引く）
         cv2.rectangle(img, scaled_top_left, scaled_bottom_right, color=(0, 255, 0), thickness=2)  # 緑色の枠
         color = get_color(frame["data_type"])
+
+        ## 予測を書く色の濃さで
+        if frame["data_type"] == "output":
+            # 長方形の数と各長方形の高さ
+            height, width = 2.44, 7.32
+            YOKO, TATE = 4, 2
+            rect_height = height / TATE
+            rect_width = width / YOKO
+
+            # 各長方形を描画
+            for i, value in enumerate(result[0]):            
+                # 色の濃さを計算 (0-255の範囲にマッピング)
+                color_intensity = int(256-int(value * 255) *2 / 3)
+                color = (color_intensity, color_intensity, 0)
+                
+                # 長方形の座標
+                top_left = (int((rect_width*(i%4))* 80 + 5), int((rect_height*(i//4)) * 80 + 200))
+                bottom_right = (int((rect_width*(i%4)+rect_width)* 80 + 5), int((rect_height*(i//4)+rect_height) * 80 + 200))
+                
+                # 長方形の描画
+                cv2.rectangle(img, top_left, bottom_right, color, -1)
+
         # 各部位の描画
         poses, moves = list(frame['keeper-pose'].items())[:13], list(frame['keeper-pose'].items())[13:]
         if (frame['keeper-pose']):
+            ## 予測を描画する色の濃さで描画する
             for pose, move in zip(poses, moves):
                 pose_part, pose_coords = pose
                 move_part, move_coords = move
@@ -79,4 +105,4 @@ for index in test_indices:
 
     print(f"動画が {output_file} に保存されました。")
 
-# srun -p p -t 10:00 --gres=gpu:1 --pty poetry run python src/prediction_abe/display_points.py
+# srun -p p -t 10:00 --gres=gpu:1 --pty poetry run python src/classify_prediction/display_points.py

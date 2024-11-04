@@ -8,18 +8,18 @@ from data import standardize, destandardize
 from model import CoordinatePredictionModel
 from pose_prediction import pose_prediction
 
-EPOCH_NUM = 100
+EPOCH_NUM = 300
 
 # scalerなどを読みとる
 with open(os.path.join("/home/u01170/AI_practice/pk_prediction/src/prediction_abe/data_info", "data_and_scaler_info.json"), "r") as f:
     data_info = json.load(f)
 
 mean, std = torch.tensor(data_info["Scaler_Info"]["Mean"]), torch.tensor(data_info["Scaler_Info"]["Scale"])
-test_indices = data_info["Dataset_Indices"]["test_indices"]
+test_indices = [filename.split('/')[len(filename.split('/'))-1].split('_')[0] for filename in data_info["Dataset_Indices"]["test_indices"]]
 
 for index in test_indices:
     # データセットの選択
-    dataset = data.CoordinateData([os.path.join("data", str(index) + ".mp4_pose.json")])
+    dataset = data.CoordinateData([os.path.join("/home/u01170/AI_practice/pk_prediction/src/making_datasets/optical_flow/dataset", str(index) + "_dataset.json")])
 
     input_size = dataset.input_dim()
     output_size = dataset.output_dim()
@@ -47,4 +47,4 @@ for index in test_indices:
     # 出力をファイルに保存
     pose_prediction(inputs[0], outputs, os.path.join("/home/u01170/AI_practice/pk_prediction/src/prediction_abe/prediction_data", str(index) + "predict_pose.json"))
 
-# srun -p p -t 10:00 --gres=gpu:1 --pty poetry run python src/prediction/model_test.py 
+# srun -p p -t 10:00 --gres=gpu:1 --pty poetry run python src/prediction_abe/model_test.py 

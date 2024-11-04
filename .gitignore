@@ -9,3 +9,4 @@
 *.pt
 *.log
 __pycache__/
+wandb/
