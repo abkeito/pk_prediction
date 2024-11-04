@@ -42,8 +42,6 @@ class GoalCropper:
                 output_file_path,
                 codec='libx264',
                 audio_codec='aac',
-                bitrate="5000k",          # ビットレートを指定
-                preset="slow",            # 高画質用のエンコードプリセット
             )
         
         print(f"Cropped video saved to: {output_filename}")

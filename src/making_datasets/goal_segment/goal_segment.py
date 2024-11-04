@@ -2,7 +2,6 @@ import json
 import numpy as np
 from ultralytics import SAM, YOLO
 import os
-import numpy as np
 import torch
 from base import GOAL_SEGMENT_MODEL, INPUT_VIDEO_FOLDER, GOAL_OUTPUT_FOLDER
 
@@ -46,16 +45,14 @@ def goal_segment(input_video_name: str):
             class_id = box.cls[0].item()  # Class ID
             class_name = classes[class_id]
             posts.append([(x1+x2)/2, y1, (x1+x2)/2, y2, confidence]) # postの上と下とconfidenceを入れる
-           
 
-        if len(posts) == 2 and posts[0][4] > 0.5 and posts[1][4] > 0.5:
-            if posts[0][0] < posts[1][0]:
-                left_post, right_post = posts[0], posts[1]
-            else:
-                left_post, right_post = posts[1], posts[0]
+        if len(posts) >= 2:
+            left_index = np.argmin(np.array([post[0] for post in posts]))
+            right_index = np.argmax(np.array([post[0] for post in posts]))
+            left_post = posts[left_index]
+            right_post = posts[right_index]
             goal_frames += 1
             x1, y1, x2, y2, x3, y3, x4, y4 = left_post[0], left_post[1], right_post[0], right_post[1], left_post[2], left_post[3], right_post[2], right_post[3]
-
 
         # Create a dictionary for the detected object with frame ID
         goal = {
@@ -74,20 +71,21 @@ def goal_segment(input_video_name: str):
         goals.append(goal)
     print(f"frame number = {frame_id}")
 
-    # 座標を辞書から抽出
-    goal_top_left = [np.sum([goal["coordinates"]["left-up"][0] for goal in goals]) / goal_frames, np.sum([goal["coordinates"]["left-up"][1] for goal in goals]) / goal_frames]
-    goal_top_right = [np.sum([goal["coordinates"]["right-up"][0] for goal in goals])/ goal_frames, np.sum([goal["coordinates"]["right-up"][1] for goal in goals])/ goal_frames]
-    goal_bottom_left = [np.sum([goal["coordinates"]["left-down"][0] for goal in goals])/ goal_frames, np.sum([goal["coordinates"]["left-down"][1] for goal in goals])/ goal_frames]
-    goal_bottom_right = [np.sum([goal["coordinates"]["right-down"][0] for goal in goals])/ goal_frames, np.sum([goal["coordinates"]["right-down"][1] for goal in goals])/ goal_frames]
+    # 各座標をリストに格納
+    left_up_x = [goal["coordinates"]["left-up"][0] for goal in goals if goal["coordinates"]["left-up"] != [0, 0]]
+    left_up_y = [goal["coordinates"]["left-up"][1] for goal in goals if goal["coordinates"]["left-up"] != [0, 0]]
+    right_up_x = [goal["coordinates"]["right-up"][0] for goal in goals if goal["coordinates"]["right-up"] != [0, 0]]
+    right_up_y = [goal["coordinates"]["right-up"][1] for goal in goals if goal["coordinates"]["right-up"] != [0, 0]]
+    left_down_x = [goal["coordinates"]["left-down"][0] for goal in goals if goal["coordinates"]["left-down"] != [0, 0]]
+    left_down_y = [goal["coordinates"]["left-down"][1] for goal in goals if goal["coordinates"]["left-down"] != [0, 0]]
+    right_down_x = [goal["coordinates"]["right-down"][0] for goal in goals if goal["coordinates"]["right-down"] != [0, 0]]
+    right_down_y = [goal["coordinates"]["right-down"][1] for goal in goals if goal["coordinates"]["right-down"] != [0, 0]]
 
-    # 4隅の座標からクロップ範囲を計算
-    x_range = max(goal_top_right[0], goal_bottom_right[0]) - min(goal_top_left[0], goal_bottom_left[0])
-    y_range = max(goal_bottom_left[1], goal_bottom_right[1]) - min(goal_top_left[1], goal_top_right[1])
-
-    x_min = (min(goal_top_left[0], goal_bottom_left[0]) - x_range*0.05) if (min(goal_top_left[0], goal_bottom_left[0]) - x_range*0.05) > 0 else 0
-    x_max = (max(goal_top_right[0], goal_bottom_right[0]) + x_range*0.05) if (max(goal_top_right[0], goal_bottom_right[0]) + x_range*0.05) < 1 else 1
-    y_min = (min(goal_top_left[1], goal_top_right[1]) - y_range*0.05) if (min(goal_top_left[1], goal_top_right[1]) - y_range*0.05) > 0 else 0
-    y_max = (max(goal_bottom_left[1], goal_bottom_right[1]) + y_range*0.05) if (max(goal_bottom_left[1], goal_bottom_right[1]) + y_range*0.05) < 1 else 1
+    # 最小の長方形の座標を計算
+    x_min = min(left_up_x + left_down_x) if left_up_x or left_down_x else 0
+    x_max = max(right_up_x + right_down_x) if right_up_x or right_down_x else 1
+    y_min = min(left_up_y + right_up_y) if left_up_y or right_up_y else 0
+    y_max = max(left_down_y + right_down_y) if left_down_y or right_down_y else 1
 
     goal_info["crop_coordinates"] = {
         "x_min": x_min,

@@ -1,0 +1,93 @@
+11.7
+1.13.1+cu117
+gpu
+/home/u01170/AI_practice/pk_prediction/src/prediction_abe/model_train.py:51: UserWarning: Creating a tensor from a list of numpy.ndarrays is extremely slow. Please consider converting the list to a single numpy.ndarray with numpy.array() before converting to a tensor. (Triggered internally at ../torch/csrc/utils/tensor_new.cpp:230.)
+  input, output = torch.tensor(dataset.get_inputs(), dtype = torch.float32), torch.tensor(dataset.get_outputs(), dtype = torch.float32)
+scaler info  [3.43264294 1.3926356  3.22847856 1.333555   3.81232703 1.28909989
+ 3.17247509 1.35229638 3.90538506 1.29258195 3.55170005 1.51847333
+ 3.33542245 1.52956252 3.58749813 1.584037   3.30484563 1.6210529
+ 3.56032497 1.66554363 3.2519897  1.69047976 3.61125884 1.78047113
+ 3.44241374 1.78687992 3.65897142 2.00349437 3.33844355 2.00521
+ 3.74800729 2.19685312 3.33365791 2.1969997 ] [1.44032839 0.14215041 0.84955556 0.10728656 0.81786607 0.10157843
+ 0.77828687 0.11617252 0.67142855 0.10602563 1.59313202 0.19583145
+ 1.57338152 0.20181031 1.22275391 0.20370951 1.40810598 0.21258199
+ 1.32792669 0.22186452 1.51904636 0.22095842 1.11919096 0.19357066
+ 1.12172761 0.1950843  1.14310935 0.19025624 1.10831918 0.1891463
+ 0.89018039 0.24795278 0.82029993 0.24828749]
+shape of the data: input, output =  torch.Size([112, 30, 34]) torch.Size([112, 30, 34])
+train:  89 89
+valid:  12 12
+test:  11 11
+1 / 100 epoch start.
+mean loss = 66.4530767764938.
+2 / 100 epoch start.
+mean loss = 39.90961955772357.
+3 / 100 epoch start.
+mean loss = 39.339539593525146.
+4 / 100 epoch start.
+mean loss = 39.022650884778315.
+5 / 100 epoch start.
+mean loss = 38.87661940997906.
+6 / 100 epoch start.
+mean loss = 38.77235321248515.
+7 / 100 epoch start.
+mean loss = 38.809795939520505.
+8 / 100 epoch start.
+mean loss = 38.70836084880186.
+9 / 100 epoch start.
+mean loss = 38.76497127634756.
+10 / 100 epoch start.
+mean loss = 38.654344831959584.
+Validation Loss:  26.65044327576955
+11 / 100 epoch start.
+mean loss = 38.59990529665786.
+12 / 100 epoch start.
+mean loss = 38.75714672415444.
+13 / 100 epoch start.
+mean loss = 38.77247382549757.
+14 / 100 epoch start.
+mean loss = 38.63636388537589.
+15 / 100 epoch start.
+mean loss = 38.589628712514816.
+16 / 100 epoch start.
+mean loss = 38.69613162185369.
+17 / 100 epoch start.
+mean loss = 38.697023674343406.
+18 / 100 epoch start.
+mean loss = 38.60955432559667.
+19 / 100 epoch start.
+mean loss = 38.71963236439094.
+20 / 100 epoch start.
+mean loss = 38.622628747747186.
+Validation Loss:  26.676057656606037
+21 / 100 epoch start.
+mean loss = 38.56426499532849.
+22 / 100 epoch start.
+mean loss = 38.50772247689493.
+23 / 100 epoch start.
+mean loss = 38.476009071542975.
+24 / 100 epoch start.
+mean loss = 38.43985256854068.
+25 / 100 epoch start.
+mean loss = 38.42270559407352.
+26 / 100 epoch start.
+mean loss = 38.39104741878724.
+27 / 100 epoch start.
+mean loss = 38.378220607725424.
+28 / 100 epoch start.
+Traceback (most recent call last):
+  File "/home/u01170/AI_practice/pk_prediction/src/prediction_abe/model_train.py", line 81, in <module>
+    loss = model(input, output)
+  File "/home/u01170/AI_practice/pk_prediction/.venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/u01170/AI_practice/pk_prediction/src/prediction_abe/model.py", line 64, in forward
+    y = self.decode(decode_input).squeeze(0)
+KeyboardInterrupt
+Traceback (most recent call last):
+  File "/home/u01170/AI_practice/pk_prediction/src/prediction_abe/model_train.py", line 81, in <module>
+    loss = model(input, output)
+  File "/home/u01170/AI_practice/pk_prediction/.venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/u01170/AI_practice/pk_prediction/src/prediction_abe/model.py", line 64, in forward
+    y = self.decode(decode_input).squeeze(0)
+KeyboardInterrupt

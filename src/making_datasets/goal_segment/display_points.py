@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 import json
+import os
 
 def get_color(data_type):
     if data_type == "input":
@@ -14,8 +15,10 @@ def get_color(data_type):
 # フレームサイズの設定
 frame_width = 640
 frame_height = 480
-input_file = f"/home/u01170/AI_practice/pk_prediction/src/making_datasets/goal_segment/dataset/62.mp4_pose.json"
+input_file = f"/home/u01170/AI_practice/pk_prediction/src/making_datasets/goal_segment/dataset/102.mp4_pose.json"
+input_file = "/home/u01170/AI_practice/pk_prediction/src/making_datasets/optical_flow/dataset/102_dataset.json"
 output_file = '/home/u01170/AI_practice/pk_prediction/src/making_datasets/goal_segment/video/display_points.mp4'
+#inputfiles = os.listdir("/home/u01170/AI_practice/pk_prediction/src/making_datasets/goal_segment/dataset/dataset_example")
 
 with open(input_file, 'r', encoding='utf-8') as file:
     frames_data = json.load(file)
@@ -41,15 +44,24 @@ for frame in frames_data:
     cv2.rectangle(img, scaled_top_left, scaled_bottom_right, color=(0, 255, 0), thickness=2)  # 緑色の枠
     color = get_color(frame["data_type"])
     # 各部位の描画
+    poses, moves = list(frame['keeper-pose'].items())[:13], list(frame['keeper-pose'].items())[13:]
     if (frame['keeper-pose']):
-        for part, coords in frame['keeper-pose'].items():
+        for pose, move in zip(poses, moves):
+            pose_part, pose_coords = pose
+            move_part, move_coords = move
             # スケーリングのため、x座標を80倍、y座標を80倍にする
-            x = int(coords[0] * 80 + 50)  # スケーリング
-            y = int(coords[1] * 80 + 200)  # スケーリング
+            x = int(pose_coords[0] * 80 + 50)  # スケーリング
+            y = int(pose_coords[1] * 80 + 200)  # スケーリング
+            end_x = int((pose_coords[0] + 10*move_coords[0]) * 80 + 50)
+            end_y = int((pose_coords[1] + 10*move_coords[1]) * 80 + 200)
             if x < frame_width and y < frame_height:  # フレーム内に収まるか確認
                 cv2.circle(img, (x, y), radius=5, color=color, thickness=-1)  # 部位を赤い点で描画
                 # 部位のラベルを描画
-                cv2.putText(img, part, (x + 5, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.2, (0, 0, 0), 1, cv2.LINE_AA)  # 黒色のラベル
+                cv2.putText(img, pose_part, (x + 5, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.2, (0, 0, 0), 1, cv2.LINE_AA)  # 黒色のラベル
+                # 矢印を描画
+                cv2.arrowedLine(img, (x, y), (end_x, end_y), color, 1, tipLength=0.2)
+            else:
+                print(x, y, "Outside the boundary")
     
     out.write(img)  # フレームを動画に追加
 
