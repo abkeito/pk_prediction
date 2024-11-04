@@ -3,17 +3,16 @@ import sys
 import torch
 
 import data
-from data import standardize, destandardize
 from model import CoodinatePredictionModel
 from pose_prediction import pose_prediction
 
-EPOCH_NUM = 10
+MODEL_NUM = 510 # 使うモデルの番号
 
 # データセットの選択
-dataset = data.CoodinateData("src/prediction/data/pose.json")
+test_dataset = data.CoodinateData('src/prediction/data/input/test')
 
-input_size = dataset.input_dim()
-output_size = dataset.output_dim()
+input_size = test_dataset.input_dim()
+output_size = test_dataset.output_dim()
 
 # デバイスの設定
 if torch.cuda.is_available():
@@ -21,21 +20,33 @@ if torch.cuda.is_available():
 else:
     device = torch.device('cpu')
 
+hidden_size = 128 # trainと合わせる
+
 # モデルの選択
-model = CoodinatePredictionModel(input_size, output_size).to(device)
+model = CoodinatePredictionModel(input_size, output_size, hidden_size).to(device)
 
-model.load_state_dict(torch.load("src/prediction/trained_model/prediction_{0}.model".format(EPOCH_NUM)))
+# テストデータのリスト
+input_files = test_dataset.get_input_files()
 
-inputs = torch.tensor(dataset.get_inputs(), dtype=torch.float32)
-# 標準化
-standardized_inputs = standardize(inputs)
+model.load_state_dict(torch.load("src/prediction/trained_model/prediction_{0}.model".format(MODEL_NUM)))
 
-outputs = model(standardized_inputs[0])
+inputs = test_dataset.get_inputs()
+targets = test_dataset.get_outputs()
+targets = model.padding(targets).to(device)
 
-#逆標準化
-outputs = destandardize(outputs, standardized_inputs[1].to(device), standardized_inputs[2].to(device))
+model.eval()
+with torch.no_grad():
+    outputs = model(inputs).transpose(0, 1)
 
 # 出力をファイルに保存
-pose_prediction(inputs, outputs, "src/prediction/data/predicted_pose.json")
+pose_prediction(inputs, outputs, input_files)
+
+# Test loss の計算
+sum_loss = 0.
+for i, output in enumerate(outputs):
+    loss = model.loss_fn(output, targets[i])
+    sum_loss += loss / outputs.size(0) # 系列長でわる
+test_loss = sum_loss / len(targets) # バッチ長でわる
+print("test_loss:", test_loss.item())
 
 # srun -p p -t 10:00 --gres=gpu:1 --pty poetry run python src/prediction/model_test.py 
