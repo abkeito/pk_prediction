@@ -1,27 +1,31 @@
 import cv2
 import numpy as np
 import json
-from base import CROPPED_VIDEO_FOLDER, INPUT_SPLIT_FOLDER, POSE_OUTPUT_FOLDER, GOAL_OUTPUT_FOLDER, OPTICAL_FOLDER
+from optical_flow.base import CROPPED_VIDEO_FOLDER, GOAL_OUTPUT_FOLDER, OPTICAL_FOLDER
 import os
 
-def optical_flow():
+# 入力: クロップ後の動画、ゴールの座標
+# 出力: オプティカルフローの座標
+def get_optical_flow():
     filenames = os.listdir(GOAL_OUTPUT_FOLDER)
-
+    # ファイルごとに処理
     for filename in filenames:
         filenumber = filename.split(".")[0]
 
+        # 入出力パスの設定
         goal_json_path = os.path.join(GOAL_OUTPUT_FOLDER, filename)
         output_path = os.path.join(OPTICAL_FOLDER, filenumber + "_optical-flow.json")
-
         with open(goal_json_path, 'r', encoding='utf-8') as file:
             data = json.load(file)
+
+        # 座標を辞書から抽出
         goal_data = data["goal"]
         crop_coordinates = data["crop_coordinates"]
-        # 座標を辞書から抽出
         x_min = crop_coordinates["x_min"]
         x_max = crop_coordinates["x_max"]
         y_min = crop_coordinates["y_min"]
         y_max = crop_coordinates["y_max"]
+        
         # 動画を読み込む
         cap = cv2.VideoCapture(os.path.join(CROPPED_VIDEO_FOLDER, "cropped_" + filenumber + ".mp4"))
 

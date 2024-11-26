@@ -4,6 +4,8 @@ import json
 import os
 from base import CROPPED_VIDEO_FOLDER, INPUT_VIDEO_FOLDER
 
+# 入力： 動画ファイルのパス、 クロップする範囲の座標
+# 出力： クロップした動画
 class GoalCropper:
     def __init__(self, input_video, output_folder):
         """

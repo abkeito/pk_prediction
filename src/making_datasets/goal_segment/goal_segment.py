@@ -9,49 +9,46 @@ from base import GOAL_SEGMENT_MODEL, INPUT_VIDEO_FOLDER, GOAL_OUTPUT_FOLDER
 # 入力：ビデオファイルの名前
 # 出力：GOAL_OUTPUT_FOLDER 内に json形式が作られる
 def goal_segment(input_video_name: str):
-    # Load a model
+    # モデルを読み込む
     model = YOLO(GOAL_SEGMENT_MODEL)
     input_path = os.path.join(INPUT_VIDEO_FOLDER, input_video_name)
     goal_output_file_path = os.path.join(GOAL_OUTPUT_FOLDER, input_video_name + "_goal.json")
 
+    # モデルの状況などの確認
+    print(f"Goal segmentation started for {input_video_name}")
     print(torch.version.cuda)
     print(torch.__version__)
     device = 'gpu' if torch.cuda.is_available() else 'cpu'
     print(device)
 
-    # Display model information (optional)
+    # モデルの情報を表示
     model.info()
-    # Run inference on a video file
+    # モデルの予測を取得
     results = model(input_path, save=True, stream=True)
     classes = model.names
 
-    # Prepare a list to hold detected objects
+    # 結果を保持するための辞書
     goal_info = {}
     goal_info["file_name"] = input_video_name
-
     goals = []
 
-    goal_frames = 0
     x1, y1, x2, y2, x3, y3, x4, y4 = 0,0,0,0,0,0,0,0
-    # Extract the bounding boxes, masks, and segmentations
+    # 各フレームの結果を取得
     for frame_id, result in enumerate(results):
         confidence = 0
-        # Check if masks are available in the result
         posts = []
         for i, box in enumerate(result.boxes):
-            # Get the bounding box coordinates (x1, y1, x2, y2)
-            x1, y1, x2, y2 = box.xyxyn[0].tolist()  # Convert to list if needed
-            confidence = box.conf[0].item()   # Confidence score
-            class_id = box.cls[0].item()  # Class ID
-            class_name = classes[class_id]
-            posts.append([(x1+x2)/2, y1, (x1+x2)/2, y2, confidence]) # postの上と下とconfidenceを入れる
+            # ゴールのバウンディングボックスを取得（正規化された値で）
+            x1, y1, x2, y2 = box.xyxyn[0].tolist()  # リストへ
+            confidence = box.conf[0].item()   # 確信度
+            posts.append([(x1+x2)/2, y1, (x1+x2)/2, y2, confidence]) # ゴールポストの上と下の座標と確信度をリストに追加
 
+        # ゴールポストが2つ以上検出された場合情報を更新する
         if len(posts) >= 2:
             left_index = np.argmin(np.array([post[0] for post in posts]))
             right_index = np.argmax(np.array([post[0] for post in posts]))
             left_post = posts[left_index]
             right_post = posts[right_index]
-            goal_frames += 1
             x1, y1, x2, y2, x3, y3, x4, y4 = left_post[0], left_post[1], right_post[0], right_post[1], left_post[2], left_post[3], right_post[2], right_post[3]
 
         # Create a dictionary for the detected object with frame ID
@@ -69,9 +66,8 @@ def goal_segment(input_video_name: str):
 
         # Add the detected object to the list
         goals.append(goal)
-    print(f"frame number = {frame_id}")
 
-    # 各座標をリストに格納
+    # ゴールの4角の情報を獲得
     left_up_x = [goal["coordinates"]["left-up"][0] for goal in goals if goal["coordinates"]["left-up"] != [0, 0]]
     left_up_y = [goal["coordinates"]["left-up"][1] for goal in goals if goal["coordinates"]["left-up"] != [0, 0]]
     right_up_x = [goal["coordinates"]["right-up"][0] for goal in goals if goal["coordinates"]["right-up"] != [0, 0]]
