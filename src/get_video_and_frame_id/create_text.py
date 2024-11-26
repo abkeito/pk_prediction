@@ -1,10 +1,10 @@
 import os
 
 # ボールを蹴る瞬間のフレームIDを格納したファイル'flameID.txt'へのパス
-input_file_path = '/home/u01177/video_edit/flameID.txt' 
+input_file_path = 'src/get_video_and_frame_id/data/flameID.txt' 
 
 # 出力先ディレクトリのパス
-output_dir = '/home/u01177/video_edit/dataset/text/'
+output_dir = 'src/get_video_and_frame_id/data/frame_id'
 
 # 出力先ディレクトリが存在しない場合は作成
 os.makedirs(output_dir, exist_ok=True)

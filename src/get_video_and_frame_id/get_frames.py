@@ -1,12 +1,12 @@
-# 動画の全フレームを画像としてdataset/flameに保存
+# 動画の全フレームを画像として data/video_frames に保存することで、目視で蹴る瞬間を確認できる。
 
 import cv2
 import os
 
 # 動画が保存されているフォルダのパス
-video_folder = '/home/u01177/video_edit/dataset/video/'
+video_folder = 'src/get_video_and_frame_id/data/original_video'
 # 出力する画像ファイルの保存先フォルダ
-output_folder = '/home/u01177/video_edit/dataset/flame/'
+output_folder = 'src/get_video_and_frame_id/data/video_frames'
 
 # 動画ファイルのリストを取得
 video_files = [f for f in os.listdir(video_folder) if f.endswith(('.mp4', '.avi', '.mov'))]
@@ -41,3 +41,5 @@ for video_file in video_files:
         frame_id += 1  # フレームIDを増やす
 
     cap.release()
+
+# poetry run python src/get_video_and_frame_id/get_frames.py
