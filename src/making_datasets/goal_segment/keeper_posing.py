@@ -3,7 +3,10 @@ import numpy as np
 from ultralytics import YOLO
 import os
 import torch
-from base import CROPPED_VIDEO_FOLDER, INPUT_SPLIT_FOLDER, POSE_OUTPUT_FOLDER, GOAL_OUTPUT_FOLDER
+from base import CROPPED_VIDEO_FOLDER, INPUT_SPLIT_FOLDER, POSE_OUTPUT_FOLDER
+
+# 入力：クロップ後の動画、ゴールの座標
+# 出力：キーパーのポーズのjsonファイル
 
 # これをはみ出たらだめ
 x_min, x_max = 0-1, 7.32+1
@@ -21,12 +24,14 @@ def are_coordinates_within_bounds(coordinates, x_min=x_min, x_max=x_max, y_min=y
     return within_x_bounds and within_y_bounds
 
 def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame: int, input_frame: int, output_frame:int):
+
+    # GPUが使えるか確認
     print(torch.version.cuda)
     print(torch.__version__)
     device = 'gpu' if torch.cuda.is_available() else 'cpu'
     print(device)
 
-    # Predict with the model
+    # 入力と出色の確認
     input_path = os.path.join(CROPPED_VIDEO_FOLDER, "cropped_" + input_video_name)
     input_text_path = os.path.join(INPUT_SPLIT_FOLDER, input_video_name.split(".")[0]+".txt")
     outputfile = os.path.join(POSE_OUTPUT_FOLDER, f"{input_video_name}_pose.json")
@@ -37,7 +42,6 @@ def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame
     
     with open(input_text_path, "r") as file:
         content = file.read()
-        print(content)
         kick_frame_id = int(content)
 
     goal_data = data["goal"]
@@ -48,7 +52,7 @@ def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame
     y_min = crop_coordinates["y_min"]
     y_max = crop_coordinates["y_max"]
 
-    # Load a model
+    # モデルを読み込む
     model = YOLO("yolo11x-pose.pt") 
     person_keypoints = [
         "face", # 0~4個目を1つにまとめる
@@ -66,19 +70,23 @@ def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame
         "right_ankle"    # 16
     ]
 
-    # Display model information (optional)
+    # モデルの情報を出す
     model.info()
-    # Run inference on a video file
+    # YOLOのポージング予測を実施
     results = model(input_path, save=True, stream=True)
 
+    # 結果を保存
     keeper_info = []
     keeper_pose = None
     pose_coordinates_transformed = None
+    # 1フレームずつ処理
     for frame_id, result in enumerate(results):
         prev_pose_coordinates_transformed = pose_coordinates_transformed
         # goal の情報
         if frame_id < len(goal_data):
             goal_coordinates = goal_data[frame_id]["coordinates"]
+            
+            # クロップ後の動画におけるゴールの座標を計算
             goal_lu = [(goal_coordinates["left-up"][0] - x_min) / (x_max - x_min),
                     (goal_coordinates["left-up"][1] - y_min) / (y_max - y_min)]
             goal_ld = [(goal_coordinates["left-down"][0] - x_min) / (x_max - x_min),
@@ -89,7 +97,8 @@ def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame
                     (goal_coordinates["right-down"][1] - y_min) / (y_max - y_min)]
             goal_centroid = [np.mean(goal_lu[0] + goal_ld[0] + goal_ru[0] + goal_rd[0]), np.mean(goal_lu[1] + goal_ld[1] + goal_ru[1] + goal_rd[1])]
 
-            xa, ya = goal_ld[0] - goal_lu[0], goal_ld[1] - goal_lu[1] # クロップ後の動画の中での0~1ベクトル
+            # クロップ後の動画におけるゴールの基底ベクトルを計算
+            xa, ya = goal_ld[0] - goal_lu[0], goal_ld[1] - goal_lu[1]
             xb, yb = goal_ru[0] - goal_lu[0], goal_ru[1] - goal_lu[1]
 
             if ya == 0:
@@ -99,10 +108,11 @@ def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame
                 xb = 1e-6
                 print("xb is zero")
 
+            # 変換行列を取得
             transformation_matrix = np.array([[(7.32 / xb), 0], [-(2.44*yb/ya/xb), 2.44/ya]])
-            closest_index = 0
 
-            # キーパーのindexをとってくる
+            # 複数人いる時に一番近い人のインデックスを保持
+            closest_index = 0
             if result.boxes.xywh.shape != (0,4):
                 boxes = result.boxes
                 box_areas = []
@@ -111,10 +121,9 @@ def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame
                     box_areas.append(w*h)      
                 # 最小の距離を持つ点のインデックスを取得
                 closest_index = np.argmax(np.array(box_areas))
-
             pose_coordinates = np.array(result.keypoints.xyn.tolist()[closest_index])
 
-            # 形が0ではないかcheck
+            # 誰も検知されなかった場合は前回のを引く次、キーパーがいたときは更新処理を入れる
             if pose_coordinates.shape != (0,):
                 subtract_value = np.array([goal_lu[0], goal_lu[1]])
                 pose_coordinates = np.where(np.all(pose_coordinates == [0, 0], axis=1, keepdims=True), 
@@ -124,15 +133,15 @@ def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame
 
                 not_points_count = 0
 
-                # face を一つにまとめる
-                # print(pose_coordinates_transformed[:5])
+                # 顔を一つにまとめる
                 face_valid_points = pose_coordinates_transformed[:5][~np.all(pose_coordinates_transformed[:5] == [0, 0], axis=1)]
                 valid_points = pose_coordinates_transformed[~np.all(pose_coordinates_transformed == [0, 0], axis=1)]
                 body_centroid = np.mean(valid_points, axis=0).reshape(1, -1)
                 if face_valid_points.size > 0:
                     face_centroid = np.mean(face_valid_points, axis=0).reshape(1, -1)
                 else:
-                    face_centroid = body_centroid.reshape(1, -1) # 有効な座標がない場合、重心を[0, 0]とする
+                    face_centroid = body_centroid.reshape(1, -1) # 有効な座標がない場合、重心とする
+
                 # なかったら前回を引き継ぐ or 全身の重心
                 for i in range(len(pose_coordinates_transformed)):
                     if np.array_equal(pose_coordinates_transformed[i], [0, 0]) and prev_pose_coordinates_transformed is not None and not np.array_equal(prev_pose_coordinates_transformed[i], [0, 0]):
@@ -142,11 +151,12 @@ def keeper_posing(input_video_name: str, goal_output_file_path: str, split_frame
                         pose_coordinates_transformed[i][0], pose_coordinates_transformed[i][1] = body_centroid[0][0], body_centroid[0][1]
 
                 pose_coordinates_13 = np.concatenate((face_centroid, pose_coordinates_transformed[5:]), axis=0)
+
+                # 更新処理を入れる（不正な座標が多い場合はスキップ）
                 if are_coordinates_within_bounds(pose_coordinates_transformed.T) and not_points_count <= 14: 
-                    #読み込まれているの少なすぎたら前回の引きつぐ
                     keeper_pose = dict(zip(person_keypoints, pose_coordinates_13.tolist()))
 
-                
+            # 入力と出力に分けてる
             if frame_id >= kick_frame_id - (split_frame + input_frame) and frame_id < kick_frame_id - split_frame:
                 data_type = "input"
             elif frame_id >= kick_frame_id - split_frame and frame_id < kick_frame_id - split_frame + output_frame:
