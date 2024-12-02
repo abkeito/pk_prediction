@@ -1,7 +1,5 @@
-import matplotlib.pyplot as plt
 import torch
 from torch import nn, Tensor
-import torch.nn.functional as F
 from torch.nn import TransformerEncoder, TransformerEncoderLayer, TransformerDecoder, TransformerDecoderLayer
 import math
 
