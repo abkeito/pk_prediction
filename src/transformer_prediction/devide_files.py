@@ -3,8 +3,6 @@ import shutil
 import random
 
 def split_files(input_dir: str, output_dir: str, split_ratios: tuple=(0.7, 0.2, 0.1)) -> None:
-    assert sum(split_ratios) == 1.0
-    
     files = [f for f in os.listdir(input_dir) if os.path.isfile(os.path.join(input_dir, f))]
     random.shuffle(files)
 
@@ -39,3 +37,5 @@ def split_files(input_dir: str, output_dir: str, split_ratios: tuple=(0.7, 0.2, 
 input_dir = "src/transformer_prediction/data/all"
 output_dir = "src/transformer_prediction/data"
 split_files(input_dir, output_dir)
+
+# srun -p p -t 10:00 --gres=gpu:1 --pty poetry run python src/transformer_prediction/devide_files.py 

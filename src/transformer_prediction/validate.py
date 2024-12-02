@@ -28,5 +28,5 @@ def validate(model: nn.Module, dataset: CoodinateData, train_param: Train_parame
             loss = train_param.criterion(outputs, tgt)
             total_loss += loss.item()
             
-    average_loss = total_loss / len(sources)
-    return average_loss
+        average_loss = total_loss / len(sources)
+        return average_loss

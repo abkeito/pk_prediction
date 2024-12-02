@@ -10,13 +10,13 @@ from validate import validate
 from test_and_record import predict_and_record
 from train_parameter import Train_parameter
 
-BATCH_SIZE = 16
+BATCH_SIZE = 3
 
 epoch_num = 10
 
-train_dataset = CoodinateData("src/transformer_prediction/data/input/train")
-val_dataset = CoodinateData("src/transformer_prediction/data/input/val")
-test_dataset = CoodinateData("src/transformer_prediction/data/input/test")
+train_dataset = CoodinateData("src/transformer_prediction/data/train")
+val_dataset = CoodinateData("src/transformer_prediction/data/val")
+test_dataset = CoodinateData("src/transformer_prediction/data/test")
 
 # 学習の設定
 input_size = train_dataset.get_input_dim()
@@ -39,7 +39,7 @@ best_val_loss = float('inf')
 best_model = None
 
 for epoch in range(epoch_num):
-    train(model, train_dataset)
+    train(model, train_dataset, train_param, BATCH_SIZE)
     val_loss = validate(model, val_dataset, train_param, BATCH_SIZE)
     print(f"epoch {epoch:3d} finished | val loss: {val_loss:6.4f}")
 
