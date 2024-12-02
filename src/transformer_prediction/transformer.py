@@ -37,12 +37,22 @@ class TransformerModel(nn.Module):
 
         self.init_weights()
 
+    # 重み付けの初期化
     def init_weights(self) -> None:
         initrange = 0.1
         self.decoder.bias.data.zero_()
         self.decoder.weight.data.uniform_(-initrange, initrange)
 
     def forward(self, src: Tensor, tgt: Tensor, src_mask: Tensor, tgt_mask: Tensor, src_key_padding_mask: Tensor, tgt_key_padding_mask: Tensor) -> Tensor:
+        '''
+        <args>
+            src: エンコーダの入力(蹴る前のデータ) サイズは[src_seq_len, batch_size, dim_model]
+            tgt: デコーダの入力(蹴った後のデータ) サイズは[tgt_seq_len, batch_size, dim_model]
+            src_mask: 入力にかけるマスク(基本は逆三角マスク) サイズは[src_seq_len, src_seq_len]
+            tgt_mask: デコーダの入力にかけるマスク(基本は逆三角マスク) サイズは[tgt_seq_len, tgt_seq_len]
+            src_key_padding_mask: エンコーダの入力のうちパディングによって埋めたフレームをboolで示す サイズは[batch_size, src_seq_len]
+            tgt_key_padding_mask: デコーダの入力のうちパディングによって埋めたフレームをboolで示す サイズは[batch_size, tgt_seq_len]
+        '''
         src = self.pos_encoder(src)
         tgt = self.pos_encoder(tgt)
         memory = self.transformer_encoder(src, src_mask, src_key_padding_mask)

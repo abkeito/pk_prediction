@@ -2,6 +2,7 @@ import os
 import shutil
 import random
 
+# 全入力データをtrain, val, test用に分けて保存
 def split_files(input_dir: str, output_dir: str, split_ratios: tuple=(0.7, 0.2, 0.1)) -> None:
     files = [f for f in os.listdir(input_dir) if os.path.isfile(os.path.join(input_dir, f))]
     random.shuffle(files)

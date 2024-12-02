@@ -20,7 +20,7 @@ class CoodinateData:
 
         self.set_data()
 
-        # 標準化のために平均と標準偏差を求める
+        # 標準化のために平均と標準偏差を求める。inputとoutputを合わせた全体の平均、標準偏差を算出する。
         all_inputs_tensor = torch.cat(self.input_list, dim=0)
         all_outputs_tensor = torch.cat(self.output_list, dim=0)
         self.all_tensor = torch.cat((all_inputs_tensor, all_outputs_tensor), dim=0)
@@ -28,9 +28,11 @@ class CoodinateData:
         self.mean = self.get_mean()
         self.std = self.get_std()
 
+        # 標準化
         self.standardized_input_list = self.standardize(self.input_list)
         self.standardized_output_list = self.standardize(self.output_list)
 
+        # パディングとマスクの生成
         self.input = self.pad(self.standardized_input_list)
         self.input_padding_mask = self.get_pad_mask(self.standardized_input_list)
         self.output = self.pad(self.standardized_output_list)
@@ -94,25 +96,32 @@ class CoodinateData:
             res.append(standardized_tensor)
         # 標準化後のテンソルを返す
         return res
+    
+    def destandardize(self, output: torch.Tensor) -> list:
+        return output * self.std + self.mean
 
+    # 足りないフレームを0埋めして系列長を揃える
     def pad(self, tensor_list: list) -> torch.Tensor:
         padded_tensors = pad_sequence(tensor_list, batch_first=False, padding_value=0.)
         return padded_tensors
     
+    # 上で埋めたフレームの部分がFalse, それ以外がTrueとなるマスクを作成
     def get_pad_mask(self, tensor_list: list) -> torch.Tensor: 
         masks = [torch.ones_like(tensor, dtype=torch.bool) for tensor in tensor_list]
         padded_masks = pad_sequence(masks, batch_first=False, padding_value=False)
         return padded_masks
     
-    
+    # モデルの入力
     def get_input(self) -> torch.Tensor:
         return self.input
     
+    # デコーダの入力。targetと照らし合わせて損失を求めるので、最終項だけ削除
     def get_dec_input(self) -> torch.Tensor:
         return self.output[:-1]
     
+    # 正解データ。デコーダの入力を一個左にずらしたもの。
     def get_target(self) -> torch.Tensor:
-        return self.output[1:] # dec_inputを右に一つずらす
+        return self.output[1:] # dec_inputを左に一つずらす
     
     # Encoder用のpadding mask
     def get_input_padding_mask(self) -> torch.Tensor:
@@ -136,6 +145,7 @@ class CoodinateData:
     def get_output_seq_len(self) -> int:
         return self.output.shape[0]
 
+    # ミニバッチを作成
     def batchify(self, data: torch.Tensor, mask: torch.Tensor, batch_size: int) -> tuple:
         original_batch_size = data.shape[1]
         # batch間でシャッフルを行う
@@ -145,6 +155,8 @@ class CoodinateData:
         # ミニバッチの塊がいくつあるか
         num_minibatch = original_batch_size // batch_size
         batchified_data_list = []
+
+        # ミニバッチに分割しリストに追加
         for i in range(num_minibatch):
             batchified_data_list.append(shuffled_data[:, i * batch_size: (i + 1) * batch_size, :])
 

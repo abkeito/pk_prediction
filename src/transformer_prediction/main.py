@@ -12,7 +12,7 @@ from train_parameter import Train_parameter
 
 BATCH_SIZE = 3
 
-epoch_num = 10
+epoch_num = 200
 
 train_dataset = CoodinateData("src/transformer_prediction/data/train")
 val_dataset = CoodinateData("src/transformer_prediction/data/val")
@@ -21,17 +21,20 @@ test_dataset = CoodinateData("src/transformer_prediction/data/test")
 # 学習の設定
 input_size = train_dataset.get_input_dim()
 output_size = train_dataset.get_output_dim()
+
+# ハイパーパラメータ
 d_hid = 200
 nlayers = 6
 nhead = 2
 dropout = 0.2
-lr = 0.0001
+lr = 0.0001 # 学習率
 
 train_param = Train_parameter()
 model = TransformerModel(input_size, output_size, nhead, d_hid, nlayers, dropout).to(train_param.device)
 train_param.criterion = nn.MSELoss()
 train_param.optimizer = optim.Adam(model.parameters(), lr)
 
+# グラフ出力用
 history = {"val loss": []}
 
 # 学習を回す

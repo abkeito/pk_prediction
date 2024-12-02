@@ -15,7 +15,7 @@ def test(model: nn.Module, dataset: CoodinateData, train_param: Train_parameter)
     model.eval()
     
     with torch.no_grad():
-        # 逆三角マスク生成
+        # 逆三角マスク生成（未来の情報を隠すため）
         src_mask = nn.Transformer.generate_square_subsequent_mask(input.shape[0]).to(train_param.device)
         tgt_mask = nn.Transformer.generate_square_subsequent_mask(decoder_input.shape[0]).to(train_param.device)
 
@@ -27,11 +27,15 @@ def test(model: nn.Module, dataset: CoodinateData, train_param: Train_parameter)
 
         
 
-
+# 座標予測を行い結果をjsonファイルに保存
 def predict_and_record(model: nn.Module, dataset: CoodinateData, train_param: Train_parameter) -> None:
     output, test_loss = test(model, dataset, train_param)
     print(f"Test Loss: {test_loss}")
 
+    # outputを逆標準化
+    output = dataset.destandardize(output)
+
+    # ノード一覧
     keypoints = dataset.parts
     keypoints_size = dataset.node_size
 
@@ -39,6 +43,7 @@ def predict_and_record(model: nn.Module, dataset: CoodinateData, train_param: Tr
     input = dataset.get_input().permute(1, 0, 2)
     output = output.permute(1, 0, 2)
 
+    # 各batchについて座標情報をjsonファイルに出力
     for i, (input_seq, output_seq) in enumerate(zip(input, output)):
         frame_id = 0
         predicted_coodinates = []
@@ -68,7 +73,7 @@ def predict_and_record(model: nn.Module, dataset: CoodinateData, train_param: Tr
             predicted_coodinates.append(frame)
             frame_id += 1
 
-        # 予測結果をjsonファイルに記録
+        # ファイル一覧
         input_files = dataset.input_files
         # 各ファイル名は"{num}_dataset.json"の形式である必要がある。出力ファイルは"{num}_predicrion.json"とする
         with open("src/transformer_prediction/predicted/" + input_files[i][:-12] + "prediction.json", "w") as f:
