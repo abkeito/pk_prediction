@@ -8,5 +8,7 @@
 *.model
 *.pt
 *.log
+*.out
+*.png
 __pycache__/
 wandb/
