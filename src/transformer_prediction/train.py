@@ -20,6 +20,7 @@ def train(model: nn.Module, dataset: CoodinateData, train_param: Train_parameter
 
     # 各ミニバッチごとに学習する
     for i, (src, dec_input, tgt, src_padding_mask, tgt_padding_mask) in enumerate(zip(sources, dec_inputs, targets, sources_padding_mask, targets_padding_mask)):
+  
         # 逆三角マスク生成（未来の情報を隠すため）
         src_mask = nn.Transformer.generate_square_subsequent_mask(src.shape[0]).to(train_param.device)
         tgt_mask = nn.Transformer.generate_square_subsequent_mask(dec_input.shape[0]).to(train_param.device)
