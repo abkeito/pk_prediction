@@ -1,8 +1,8 @@
 import torch
 from torch import nn
 
-from data import ClassificationData
-from train_parameter import Train_parameter
+from .loader import ClassificationData
+from .parameter import Train_parameter
 
 def validate(model: nn.Module, dataset: ClassificationData, train_param: Train_parameter, batch_size: int) -> None:
     input = dataset.get_input().to(train_param.device)
@@ -20,10 +20,15 @@ def validate(model: nn.Module, dataset: ClassificationData, train_param: Train_p
 
         # 各ミニバッチごとにモデルの出力を得て、targetと比較
         for i, (input, input_padding_mask, target) in enumerate(zip(inputs, inputs_padding_mask, targets)):
-            # 逆三角マスク生成（未来の情報を隠すため）
-            input_mask = nn.Transformer.generate_square_subsequent_mask(input.shape[0]).to(train_param.device)
+            
+            # モデルごとの出力を得る
+            if model.__class__.__name__ == "TransformerModel":
+                # 逆三角マスク生成（未来の情報を隠すため）
+                input_mask = nn.Transformer.generate_square_subsequent_mask(input.shape[0]).to(train_param.device)
+                outputs = model(input, input_mask, input_padding_mask)
 
-            outputs = model(input, target, input_mask, input_padding_mask)
+            elif model.__class__.__name__ == "LSTMModel":
+                outputs= model(input)
 
             loss = train_param.criterion(outputs, target)
             sum_loss += loss.item()
