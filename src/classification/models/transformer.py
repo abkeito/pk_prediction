@@ -30,18 +30,19 @@ class PositionalEncoding(nn.Module):
 
 class TransformerModel(nn.Module):
 
-    def __init__(self, d_model: int, d_input: int, d_output: int, nhead: int, d_hid: int,
+    def __init__(self, d_input: int, d_output: int, nhead: int, d_hid: int,
                  nlayers: int, dropout: float = 0.5):
         super().__init__()
         self.model_type = 'Transformer'
         # パラメータ設定
-        self.d_model = d_model
-        self.embedding = nn.Linear(d_input, d_model) # 埋め込み層
-        self.pos_encoder = PositionalEncoding(d_model, dropout)
-        encoder_layers = TransformerEncoderLayer(d_model, nhead, d_hid, dropout)
+        self.d_model = d_input
+        self.pos_encoder = PositionalEncoding(d_input, dropout)
+        encoder_layers = TransformerEncoderLayer(d_input, nhead, d_hid, dropout)
         self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
-        self.decoder = nn.Linear(d_model, d_output)
-        self.sigmoid = nn.Sigmoid()
+        self.decoder = nn.Linear(d_input, d_output)
+
+        self.sigmoid = nn.Sigmoid() # 多ラベル分類用
+        # self.sigmoid = nn.Softmax() # 多クラス分類用
 
         self.init_weights()
 
@@ -58,7 +59,6 @@ class TransformerModel(nn.Module):
             src_mask: 入力にかけるマスク(基本は逆三角マスク) サイズは[src_seq_len, src_seq_len]
             src_key_padding_mask: エンコーダの入力のうちパディングによって埋めたフレームをboolで示す サイズは[batch_size, src_seq_len]
         '''
-        src = self.embedding(src)
         src = self.pos_encoder(src)
         memory = self.transformer_encoder(src, src_mask, src_key_padding_mask)
 

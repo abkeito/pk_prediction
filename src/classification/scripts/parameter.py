@@ -8,5 +8,6 @@ class Train_parameter():
             self.device = torch.device('cuda')
         else:
             self.device = torch.device('cpu')
+        print(f"device: {self.device}")
         self.criterion = criterion
         self.optimizer = optimizer

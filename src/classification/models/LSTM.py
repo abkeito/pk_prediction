@@ -1,18 +1,9 @@
 import torch 
 import torch.nn as nn
 
-gpu_id = "cuda"
-
 class LSTMModel(nn.Module):
     def __init__(self, input_size: int, output_size: int, num_layers: int = 5, hidden_size: int = 256, dropout=0.6):
         super(LSTMModel, self).__init__()
-
-        if gpu_id is not None:
-            self.device = torch.device(gpu_id)
-            self.to(self.device)
-        else:
-            self.device = torch.device('cpu')
-
 
         # 双方向LSTM層 + ドロップアウト
         self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True, bidirectional=True, dropout=dropout)
@@ -26,16 +17,20 @@ class LSTMModel(nn.Module):
         self.fc2 = nn.Linear(hidden_size, output_size)
 
         # シグモイド層（多ラベル分類用）
-        self.sigmoid = nn.Sigmoid()
+        self.sigmoid = nn.Sigmoid() # 多ラベル分類用
+        # self.sigmoid = nn.Softmax() # 多クラス分類用
 
 
     def forward(self, x):
+        # デバイスを取得
+        device = x.device
+
         # LSTMの隠れ状態を初期化
-        h0 = torch.zeros(2*self.lstm.num_layers, x.size(0), self.lstm.hidden_size).to(self.device)
-        c0 = torch.zeros(2*self.lstm.num_layers, x.size(0), self.lstm.hidden_size).to(self.device)
+        h0 = torch.zeros(2*self.lstm.num_layers, x.size(0), self.lstm.hidden_size, device=device)
+        c0 = torch.zeros(2*self.lstm.num_layers, x.size(0), self.lstm.hidden_size, device=device)
         
         # LSTMの順伝播
-        out, _ = self.lstm(x.to(self.device), (h0, c0))
+        out, _ = self.lstm(x, (h0, c0))
 
         # LSTMの最後の出力を取得し、正規化
         out = self.layer_norm(out[-1, :, :])

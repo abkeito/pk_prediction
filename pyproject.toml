@@ -25,6 +25,7 @@ scikit-learn = "^1.5.2"
 wandb = "^0.18.5"
 opencv-python = "^4.10.0.84"
 transformers = "^4.46.0"
+scikit-optimize = "^0.10.2"
 
 
 [build-system]

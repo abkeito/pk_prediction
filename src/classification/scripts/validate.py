@@ -20,7 +20,6 @@ def validate(model: nn.Module, dataset: ClassificationData, train_param: Train_p
 
         # 各ミニバッチごとにモデルの出力を得て、targetと比較
         for i, (input, input_padding_mask, target) in enumerate(zip(inputs, inputs_padding_mask, targets)):
-            
             # モデルごとの出力を得る
             if model.__class__.__name__ == "TransformerModel":
                 # 逆三角マスク生成（未来の情報を隠すため）
@@ -33,9 +32,19 @@ def validate(model: nn.Module, dataset: ClassificationData, train_param: Train_p
             loss = train_param.criterion(outputs, target)
             sum_loss += loss.item()
             
-            # 正答率を計算
-            predicted = (outputs > 0.5).float()
-            sum_correct += (predicted == target).sum().item()
+        # 多ラベル分類問題
+        # 正答率を計算
+        predicted = (outputs > 0.5).float()
+        sum_correct += (predicted == target).sum().item()
 
-        # ミニバッチごとの平均損失と正答率を返す
-        return sum_loss / len(inputs), sum_correct / (len(inputs) * dataset.get_output_dim() * batch_size) 
+    # ミニバッチごとの平均損失と正答率を返す
+    return sum_loss / len(inputs), sum_correct / (len(inputs) * dataset.get_output_dim() * batch_size)
+
+    #     # 多クラス分類問題
+    #     # 正答率を計算
+    #     predicted_indices = torch.argmax(outputs, dim=2)
+    #     target_indices = torch.argmax(target, dim=2)
+    #     sum_correct += (predicted_indices == target_indices).sum().item()
+
+    # # ミニバッチごとの平均損失と正答率を返す
+    # return sum_loss / len(inputs), sum_correct / (len(inputs) * batch_size) 

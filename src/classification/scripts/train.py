@@ -39,9 +39,19 @@ def train(model: nn.Module, dataset: ClassificationData, train_param: Train_para
         loss.backward()
         train_param.optimizer.step()
 
+        # 多ラベル分類問題
         # 正答率を計算
         predicted = (outputs > 0.5).float()
         sum_correct += (predicted == target).sum().item()
 
     # ミニバッチごとの平均損失と正答率を返す
-    return sum_loss / len(inputs), sum_correct / (len(inputs) * dataset.get_output_dim() * batch_size) 
+    return sum_loss / len(inputs), sum_correct / (len(inputs) * dataset.get_output_dim() * batch_size)
+
+    # 多クラス分類問題
+    #     # 正答率を計算
+    #     predicted_indices = torch.argmax(outputs, dim=2)
+    #     target_indices = torch.argmax(target, dim=2)
+    #     sum_correct += (predicted_indices == target_indices).sum().item()
+
+    # # ミニバッチごとの平均損失と正答率を返す
+    # return sum_loss / len(inputs), sum_correct / (len(inputs) * batch_size) 

@@ -3102,6 +3102,23 @@ files = [
 ]
 
 [[package]]
+name = "pyaml"
+version = "24.9.0"
+description = "PyYAML-based module to produce a bit more pretty and readable YAML-serialized data"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "pyaml-24.9.0-py3-none-any.whl", hash = "sha256:31080551502f1014852b3c966a96c796adc79b4cf86e165f28ed83455bf19c62"},
+    {file = "pyaml-24.9.0.tar.gz", hash = "sha256:e78dee8b0d4fed56bb9fa11a8a7858e6fade1ec70a9a122cee6736efac3e69b5"},
+]
+
+[package.dependencies]
+PyYAML = "*"
+
+[package.extras]
+anchors = ["unidecode"]
+
+[[package]]
 name = "pyasn1"
 version = "0.6.1"
 description = "Pure-Python implementation of ASN.1 types and DER/BER/CER codecs (X.208)"
@@ -3929,6 +3946,30 @@ examples = ["matplotlib (>=3.3.4)", "pandas (>=1.1.5)", "plotly (>=5.14.0)", "po
 install = ["joblib (>=1.2.0)", "numpy (>=1.19.5)", "scipy (>=1.6.0)", "threadpoolctl (>=3.1.0)"]
 maintenance = ["conda-lock (==2.5.6)"]
 tests = ["black (>=24.3.0)", "matplotlib (>=3.3.4)", "mypy (>=1.9)", "numpydoc (>=1.2.0)", "pandas (>=1.1.5)", "polars (>=0.20.30)", "pooch (>=1.6.0)", "pyamg (>=4.0.0)", "pyarrow (>=12.0.0)", "pytest (>=7.1.2)", "pytest-cov (>=2.9.0)", "ruff (>=0.2.1)", "scikit-image (>=0.17.2)"]
+
+[[package]]
+name = "scikit-optimize"
+version = "0.10.2"
+description = "Sequential model-based optimization toolbox."
+optional = false
+python-versions = "*"
+files = [
+    {file = "scikit_optimize-0.10.2-py2.py3-none-any.whl", hash = "sha256:45bc7e879b086133984721f2f6735a86c085073f6c481c2ec665b5c67b44d723"},
+    {file = "scikit_optimize-0.10.2.tar.gz", hash = "sha256:00a3d91bf9015e292b6e7aaefe7e6cb95e8d25ce19adafd2cd88849e1a0b0da0"},
+]
+
+[package.dependencies]
+joblib = ">=0.11"
+numpy = ">=1.20.3"
+packaging = ">=21.3"
+pyaml = ">=16.9"
+scikit-learn = ">=1.0.0"
+scipy = ">=1.1.0"
+
+[package.extras]
+dev = ["flake8", "pandas", "pytest", "pytest-cov", "pytest-xdist"]
+doc = ["memory-profiler", "numpydoc", "pydata-sphinx-theme", "sphinx", "sphinx-gallery (>=0.6)"]
+plots = ["matplotlib (>=2.0.0)"]
 
 [[package]]
 name = "scipy"
@@ -4927,4 +4968,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.10"
-content-hash = "1e8d49e6061279afbdd9889535b9e37767eec9ef794e56a5cff6fa50a8e77996"
+content-hash = "7334099ba8a1e2d183ea0f347b38f1685bcd31eb51acf3ec64ce8dd68814f4b6"
