@@ -11,7 +11,6 @@ class LSTMModel(nn.Module):
         # LSTMの出力を正規化
         self.layer_norm = nn.LayerNorm(hidden_size * 2) # 双方向なので隠れ層のサイズは2倍
 
-        # 全結合層
         # 全結合層（中間層を追加）
         self.fc1 = nn.Linear(hidden_size * 2, hidden_size)
         self.fc2 = nn.Linear(hidden_size, output_size)

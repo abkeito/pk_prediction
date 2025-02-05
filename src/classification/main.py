@@ -14,11 +14,12 @@ from hyper_parameter_tuning import HyperParameterTuning
 
 train_dataset = ClassificationData("src/classification/data/train")
 valid_dataset = ClassificationData("src/classification/data/valid")
+test_dataset = ClassificationData("src/classification/data/test")
 
 # 学習の設定
 input_size = train_dataset.get_input_dim()
 output_size = train_dataset.get_output_dim()
-BATCH_SIZE = 12
+BATCH_SIZE = 6
 epoch_num = 200
 
 train_param = Train_parameter()
@@ -47,7 +48,7 @@ for model_name, model in models:
     train_param.optimizer = optim.Adam(model.parameters(), params[model_name].lr)
 
     # グラフ出力用
-    history[model_name] = {"train loss": [], "val loss": [], "train accuracy": [], "val accuracy": []}
+    history[model_name] = {"train loss": [], "test loss": [], "train accuracy": [], "test accuracy": [], "test precision": [], "test recall": [], "test f1": []}
 
 
     # 学習を回す
@@ -57,16 +58,23 @@ for model_name, model in models:
 
     for epoch in range(epoch_num):
         train_loss, train_accuracy = train(model, train_dataset, train_param, BATCH_SIZE)
-        val_loss, val_accuracy = validate(model, valid_dataset, train_param, BATCH_SIZE)
+        test_loss, test_accuracy, test_precision, test_recall, test_f1 = validate(model, test_dataset, train_param, BATCH_SIZE)
         if epoch % 5 == 0:
             print(f"epoch {epoch:3d} finished | train loss: {train_loss:6.4f}")
-            print(f"epoch {epoch:3d} finished | val loss: {val_loss:6.4f}")
+            print(f"epoch {epoch:3d} finished | val loss: {test_loss:6.4f}")
             print(f"epoch {epoch:3d} finished | train accuracy: {train_accuracy:6.4f}")
-            print(f"epoch {epoch:3d} finished | val accuracy: {val_accuracy:6.4f}")
+            print(f"epoch {epoch:3d} finished | val accuracy: {test_accuracy:6.4f}")
+            print(f"epoch {epoch:3d} finished | val precision: {test_precision:6.4f}")
+            print(f"epoch {epoch:3d} finished | val recall: {test_recall:6.4f}")
+            print(f"epoch {epoch:3d} finished | val f1: {test_f1:6.4f}")
+            print("")
         history[model_name]["train loss"].append(train_loss)
-        history[model_name]["val loss"].append(val_loss)
+        history[model_name]["test loss"].append(test_loss)
         history[model_name]["train accuracy"].append(train_accuracy)
-        history[model_name]["val accuracy"].append(val_accuracy)
+        history[model_name]["test accuracy"].append(test_accuracy)
+        history[model_name]["test precision"].append(test_precision)
+        history[model_name]["test recall"].append(test_recall)
+        history[model_name]["test f1"].append(test_f1)
 
         # 現在のモデルがベストの train_loss なら保存
         if train_loss < best_train_loss:
@@ -77,18 +85,18 @@ for model_name, model in models:
 
     # ベストモデルのテスト
     model.load_state_dict(best_model_state)
-    final_val_loss, final_val_accuracy = validate(model, valid_dataset, train_param, BATCH_SIZE)
-    best_case[model_name] = {"epoch": best_epoch, "val loss": final_val_loss, "val accuracy": final_val_accuracy}
+    final_test_loss, final_test_accuracy, final_precision, final_recall, final_f1 = validate(model, test_dataset, train_param, BATCH_SIZE)
+    best_case[model_name] = {"epoch": best_epoch, "test loss": final_test_loss, "test accuracy": final_test_accuracy, "test_precision": final_precision, "test_recall": final_recall, "test_f1": final_f1}
 
 # ベストモデルの出力
 for model_name, case in best_case.items():
     print(f"Best model of {model_name}:")
-    print(f"epoch: {case['epoch']}, val loss: {case['val loss']}, val accuracy: {case['val accuracy']}")
+    print(f"epoch: {case['epoch']}, test loss: {case['test loss']}, test accuracy: {case['test accuracy']}, test precision: {case['test_precision']}, test recall: {case['test_recall']}, test f1: {case['test_f1']}")
 
 # 損失の遷移の描画
 for model_name, model in models:
     plt.plot(history[model_name]["train loss"], label=f"{model_name} Train Loss")
-    plt.plot(history[model_name]["val loss"], label=f"{model_name} Validation Loss")
+    plt.plot(history[model_name]["test loss"], label=f"{model_name} Test Loss")
 plt.xlabel("Epoch")
 plt.ylabel("Loss")
 plt.title("Loss")
@@ -99,9 +107,14 @@ plt.close()
 # 正答率の遷移の描画
 for model_name, model in models:
     plt.plot(history[model_name]["train accuracy"], label=f"{model_name} Train Accuracy")
-    plt.plot(history[model_name]["val accuracy"], label=f"{model_name} Validation Accuracy")
+    plt.plot(history[model_name]["test accuracy"], label=f"{model_name} Test Accuracy")
+    plt.plot(history[model_name]["test precision"], label=f"{model_name} Test Precision")
+    plt.plot(history[model_name]["test recall"], label=f"{model_name} Test Recall")
+    plt.plot(history[model_name]["test f1"], label=f"{model_name} Test F1")
 plt.xlabel("Epoch")
 plt.ylabel("Accuracy")
 plt.title("Accuracy")
 plt.legend()
 plt.savefig("classification_accuracy.png")
+
+# srun -p p -t 60:00 --gres=gpu:1 --pty poetry run python src/classification/main.py

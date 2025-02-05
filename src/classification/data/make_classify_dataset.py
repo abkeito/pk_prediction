@@ -2,12 +2,12 @@ import json
 import os
 import random
 
-train, val, test = 0.8, 0.2, 0.0
+train, val, test = 0.8, 0.1, 0.1
 COUNT_THRESHOLD = 5
 
 width, height = 7.32, 2.44
-YOKO = 9
-TATE = 3
+YOKO = 4
+TATE = 2
 
 # 定数の設定
 ORIGINAL_FOLDER = "src/classification/data/original"
@@ -38,6 +38,8 @@ clear_folder(TEST_FOLDER)
 
 
 for i, file_path in enumerate(filepaths):
+    if i >= len(split_indices):
+        break
     with open(file_path, "r") as json_open:
         frames = json.load(json_open)
     input_pose, output_pose, label = [], [], []
@@ -60,7 +62,8 @@ for i, file_path in enumerate(filepaths):
                     goal_part = int((coords[1] // seg_height)*YOKO + (coords[0] // seg_width))
                     if goal_part >= 0 and goal_part < YOKO*TATE:
                         label_counter[goal_part] += 1
-    label = [1 if count > COUNT_THRESHOLD else 0 for count in label_counter]
+    # label = [1 if count > COUNT_THRESHOLD else 0 for count in label_counter]
+    label = [0 if count > COUNT_THRESHOLD else 1 for count in label_counter]
     data = {}
     data["label"] = label
     data["input"] = input_pose

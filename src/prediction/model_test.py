@@ -10,7 +10,7 @@ from pose_prediction import pose_prediction
 MODEL_NUM = 510 # 使うモデルの番号
 
 # データセットの選択
-test_dataset = data.CoodinateData('src/prediction/data/input/test')
+test_dataset = data.CoodinateData('src/prediction/data/input')
 
 input_size = test_dataset.input_dim()
 output_size = test_dataset.output_dim()

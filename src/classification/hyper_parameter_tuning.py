@@ -44,7 +44,7 @@ class HyperParameterTuning:
             train_param.optimizer = optim.Adam(model.parameters(), lr)
 
             best_val_loss = 100.0 # 十分大きな値
-            for _ in range(50):  # 短いスパンでテスト
+            for _ in range(15):  # 短いスパンでテスト
                 train(model, self.train_dataset, train_param, self.batch_size)
                 val_loss = validate(model, self.val_dataset, train_param, self.batch_size)[0]
                 if val_loss < best_val_loss:
@@ -59,7 +59,7 @@ class HyperParameterTuning:
             Real(1e-5, 1e-3, name='learning_rate', prior='log-uniform')
         ]
 
-        result = gp_minimize(objective, param_space, n_calls=10, random_state=0, verbose=True)
+        result = gp_minimize(objective, param_space, n_calls=30, random_state=0, verbose=True)
 
         return HyperParameterTransformer(result)
 
@@ -73,7 +73,7 @@ class HyperParameterTuning:
             train_param.optimizer = optim.Adam(model.parameters(), lr)
 
             best_val_loss = float('inf')
-            for _ in range(50):  # 短いスパンでテスト
+            for _ in range(15):  # 短いスパンでテスト
                 train(model, self.train_dataset, train_param, self.batch_size)
                 val_loss = validate(model, self.val_dataset, train_param, self.batch_size)[0]
                 if val_loss < best_val_loss:
@@ -82,12 +82,12 @@ class HyperParameterTuning:
             return best_val_loss
         
         param_space = [
-            Integer(2, 10, name='nlayers'),
+            Integer(1, 10, name='nlayers'),
             Integer(50, 1000, name='d_hid'),
             Real(0.1, 0.5, name='dropout'),
             Real(1e-5, 1e-3, name='learning_rate', prior='log-uniform')
         ]
 
-        result = gp_minimize(objective, param_space, n_calls=10, random_state=0, verbose=True)
+        result = gp_minimize(objective, param_space, n_calls=30, random_state=0, verbose=True)
 
         return HyperParameterLSTM(result)

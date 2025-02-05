@@ -8,8 +8,8 @@ def display_points(file_path : str):
         data = json.load(file)
     label = data["label"]
 
-    TATE = int(np.sqrt(len(label) // 3))
-    YOKO = TATE*3
+    TATE = 2
+    YOKO = 4
     # データを9×3にリシェイプ
     data = np.array(label).reshape((TATE, YOKO))
 
@@ -27,6 +27,6 @@ def display_points(file_path : str):
     print(data)
 
 if __name__ == "__main__":
-    display_points("src/classification/data/test/6_dataset_dataset.json")
+    display_points("src/classification/data/train/6_dataset_dataset.json")
 
 # poetry run python src/classification/display_points.py

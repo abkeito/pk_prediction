@@ -45,7 +45,7 @@ def train(model: nn.Module, dataset: ClassificationData, train_param: Train_para
         sum_correct += (predicted == target).sum().item()
 
     # ミニバッチごとの平均損失と正答率を返す
-    return sum_loss / len(inputs), sum_correct / (len(inputs) * dataset.get_output_dim() * batch_size)
+    return sum_loss / len(inputs), sum_correct / (2*len(inputs) * dataset.get_output_dim() * batch_size - sum_correct)
 
     # 多クラス分類問題
     #     # 正答率を計算
